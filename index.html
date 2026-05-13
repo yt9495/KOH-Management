@@ -267,6 +267,33 @@
         </div>
         <div class="inv-total"><span>Total due (USD)</span><span id="inv-total">$0.00</span></div>
         <div class="charge-note" id="inv-note" style="display:none"></div>
+
+        <!-- Storage Fee Breakdown -->
+        <div id="inv-storage-breakdown" style="display:none;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">
+            Storage fee breakdown
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Stock qty (IBCs)</th>
+                  <th>Days</th>
+                  <th>Rate / IBC / day</th>
+                  <th class="text-right">Subtotal (USD)</th>
+                </tr>
+              </thead>
+              <tbody id="inv-storage-lines"></tbody>
+              <tfoot>
+                <tr style="background:var(--surface2)">
+                  <td colspan="4" style="font-weight:600;padding:9px 10px">Total storage fee</td>
+                  <td class="text-right mono fw600" id="inv-storage-total" style="padding:9px 10px"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -540,6 +567,28 @@
     const note=document.getElementById('inv-note');
     if(left>0){note.style.display='block';note.textContent=`Note: ${left} IBC(s) remain in storage as of end of ${monthLabel} and will continue to accrue $${RATE.storage}.00/IBC/day in the next billing period.`;}
     else note.style.display='none';
+
+    // Storage breakdown
+    let allPeriods=[];
+    cList.forEach(c=>{
+      const sf=calcStorageFee(c,periodEnd);
+      sf.periods.forEach(p=>allPeriods.push({...p,customer:c}));
+    });
+    const bkEl=document.getElementById('inv-storage-breakdown');
+    if(allPeriods.length>0){
+      bkEl.style.display='block';
+      document.getElementById('inv-storage-lines').innerHTML=allPeriods.map(p=>`
+        <tr>
+          <td>${fmtDate(p.start)} – ${fmtDate(p.end)}${cList.length>1?' <span style="font-size:11px;color:var(--text3)">('+p.customer+')</span>':''}</td>
+          <td>${p.qty}</td>
+          <td>${p.days}</td>
+          <td class="mono">${fmt(RATE.storage)}</td>
+          <td class="text-right mono">${fmt(p.sub)}</td>
+        </tr>`).join('');
+      document.getElementById('inv-storage-total').textContent=fmt(sto);
+    } else {
+      bkEl.style.display='none';
+    }
   };
 
   window.registerInbound=async function(){
