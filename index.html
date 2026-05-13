@@ -4,329 +4,179 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KOH IBC Management</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f5f4f0;
-    --surface: #ffffff;
-    --surface2: #f0efe9;
-    --border: #e2e0d8;
-    --border2: #ccc9be;
-    --text: #1a1917;
-    --text2: #6b6860;
-    --text3: #9c9a93;
-    --blue: #1a56db;
-    --blue-light: #e8f0fe;
-    --blue-text: #1a3a8f;
-    --green: #0f7b4d;
-    --green-light: #e8f8ee;
-    --green-text: #0a4f32;
-    --amber: #9a6000;
-    --amber-light: #fef3dc;
-    --amber-text: #7a4800;
-    --red: #c0392b;
-    --red-light: #fdecea;
-    --red-text: #922b21;
-    --purple: #5b21b6;
-    --purple-light: #ede9fe;
-    --purple-text: #3b0f8c;
-    --radius: 10px;
-    --radius-sm: 6px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--border:#e2e0d8;--border2:#ccc9be;
+    --text:#1a1917;--text2:#6b6860;--text3:#9c9a93;
+    --blue:#1a56db;--blue-light:#e8f0fe;--blue-text:#1a3a8f;
+    --green:#0f7b4d;--green-light:#e8f8ee;--green-text:#0a4f32;
+    --amber:#9a6000;--amber-light:#fef3dc;--amber-text:#7a4800;
+    --red:#c0392b;--red-light:#fdecea;--red-text:#922b21;
+    --purple:#5b21b6;--purple-light:#ede9fe;--purple-text:#3b0f8c;
+    --radius:10px;--radius-sm:6px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
-  
-  /* Layout */
-  .app { display: flex; height: 100vh; overflow: hidden; }
-  .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-  .main { flex: 1; overflow-y: auto; padding: 28px; }
-
-  /* Sidebar */
-  .sidebar-header { padding: 20px 16px 16px; border-bottom: 1px solid var(--border); }
-  .sidebar-logo { display: flex; align-items: center; gap: 8px; }
-  .logo-icon { width: 32px; height: 32px; background: var(--text); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-  .logo-icon svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
-  .logo-name { font-size: 14px; font-weight: 600; }
-  .logo-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
-  .nav { padding: 10px 8px; flex: 1; }
-  .nav-section { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: .08em; text-transform: uppercase; padding: 12px 8px 4px; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm); cursor: pointer; color: var(--text2); font-size: 13px; font-weight: 400; transition: all .15s; margin-bottom: 1px; }
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { background: var(--text); color: white; font-weight: 500; }
-  .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
-  .sidebar-footer { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text3); }
-
-  /* Page */
-  .page { display: none; }
-  .page.active { display: block; }
-  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .page-title { font-size: 22px; font-weight: 600; }
-  .page-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
-
-  /* Metric cards */
-  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
-  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
-  .metric-label { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
-  .metric-val { font-size: 26px; font-weight: 600; font-family: 'DM Mono', monospace; }
-  .metric-val.blue { color: var(--blue); }
-  .metric-val.green { color: var(--green); }
-  .metric-val.amber { color: var(--amber); }
-  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
-
-  /* Cards */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
-  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-  /* Table */
-  .tbl-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); background: var(--surface2); }
-  td { padding: 10px 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--surface2); }
-
-  /* Badge */
-  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: .03em; }
-  .badge-in { background: var(--green-light); color: var(--green-text); }
-  .badge-out { background: var(--amber-light); color: var(--amber-text); }
-  .badge-mand { background: var(--blue-light); color: var(--blue-text); }
-  .badge-opt { background: var(--purple-light); color: var(--purple-text); }
-  .badge-warn { background: var(--red-light); color: var(--red-text); }
-  .badge-active { background: var(--green-light); color: var(--green-text); }
-
-  /* Form */
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .form-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; }
-  input, select, textarea { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 11px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); outline: none; transition: border-color .15s; width: 100%; }
-  input:focus, select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,86,219,.08); }
-  .btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; transition: all .15s; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 6px; }
-  .btn-primary { background: var(--text); color: white; }
-  .btn-primary:hover { background: #333; }
-  .btn-danger { background: var(--red-light); color: var(--red-text); border-color: var(--red-light); }
-  .btn-danger:hover { background: #f5c6c2; }
-  .btn-outline { background: white; border-color: var(--border2); color: var(--text); }
-  .btn-outline:hover { background: var(--surface2); }
-  .btn-row { display: flex; gap: 8px; margin-top: 16px; align-items: center; }
-
-  /* Stock bar */
-  .stock-bar-wrap { background: var(--surface2); border-radius: 4px; height: 8px; overflow: hidden; margin: 6px 0 4px; }
-  .stock-bar { height: 8px; border-radius: 4px; background: var(--blue); transition: width .4s; }
-
-  /* Invoice */
-  .inv-total { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: var(--surface2); border-radius: var(--radius-sm); margin-top: 12px; font-weight: 600; font-size: 15px; }
-  .inv-total span:last-child { font-family: 'DM Mono', monospace; color: var(--blue); font-size: 18px; }
-  .charge-note { background: var(--blue-light); color: var(--blue-text); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; margin-top: 12px; line-height: 1.6; }
-
-  /* Period table */
-  .period-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin: 16px 0 8px; }
-
-  /* Alert */
-  .alert { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 12px; display: none; }
-  .alert-success { background: var(--green-light); color: var(--green-text); }
-  .alert-error { background: var(--red-light); color: var(--red-text); }
-
-  /* Empty state */
-  .empty { text-align: center; padding: 48px 20px; color: var(--text3); }
-  .empty svg { width: 40px; height: 40px; stroke: var(--text3); fill: none; stroke-width: 1.5; margin: 0 auto 12px; display: block; }
-
-  /* Print */
-  @media print {
-    .sidebar, .btn-row, .nav-item, .page-header button, #print-btn { display: none !important; }
-    .main { padding: 0; }
-    .app { display: block; height: auto; }
-    .card { box-shadow: none; border: 1px solid #ddd; }
-  }
-  .mono { font-family: 'DM Mono', monospace; }
-  .text-right { text-align: right; }
-  .text-red { color: var(--red); }
-  .text-green { color: var(--green); }
-  .text-amber { color: var(--amber); }
-  .text-blue { color: var(--blue); }
-  .fw500 { font-weight: 500; }
-  .fw600 { font-weight: 600; }
-  .mt8 { margin-top: 8px; }
-  .mt16 { margin-top: 16px; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  .app{display:flex;height:100vh;overflow:hidden}
+  .sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+  .main{flex:1;overflow-y:auto;padding:28px}
+  .sidebar-header{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+  .sidebar-logo{display:flex;align-items:center;gap:8px}
+  .logo-icon{width:32px;height:32px;background:var(--text);border-radius:8px;display:flex;align-items:center;justify-content:center}
+  .logo-icon svg{width:18px;height:18px;stroke:white;fill:none;stroke-width:2}
+  .logo-name{font-size:14px;font-weight:600}
+  .logo-sub{font-size:11px;color:var(--text3);margin-top:1px}
+  .nav{padding:10px 8px;flex:1}
+  .nav-section{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;padding:12px 8px 4px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-size:13px;transition:all .15s;margin-bottom:1px}
+  .nav-item:hover{background:var(--surface2);color:var(--text)}
+  .nav-item.active{background:var(--text);color:white;font-weight:500}
+  .nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+  .sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)}
+  .page{display:none}.page.active{display:block}
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+  .page-title{font-size:22px;font-weight:600}
+  .page-sub{font-size:13px;color:var(--text2);margin-top:2px}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+  .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+  .metric-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .metric-val{font-size:26px;font-weight:600;font-family:'DM Mono',monospace}
+  .metric-val.blue{color:var(--blue)}.metric-val.green{color:var(--green)}.metric-val.amber{color:var(--amber)}
+  .metric-sub{font-size:11px;color:var(--text3);margin-top:3px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+  .card-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .tbl-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:8px 10px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--surface2)}
+  td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--surface2)}
+  .badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.03em}
+  .badge-in{background:var(--green-light);color:var(--green-text)}
+  .badge-out{background:var(--amber-light);color:var(--amber-text)}
+  .badge-mand{background:var(--blue-light);color:var(--blue-text)}
+  .badge-opt{background:var(--purple-light);color:var(--purple-text)}
+  .badge-warn{background:var(--red-light);color:var(--red-text)}
+  .badge-active{background:var(--green-light);color:var(--green-text)}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .form-group{display:flex;flex-direction:column;gap:5px}
+  .form-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+  input,select,textarea{font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;width:100%}
+  input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.08)}
+  .btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;border:1px solid transparent;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:var(--text);color:white}.btn-primary:hover{background:#333}
+  .btn-danger{background:var(--red-light);color:var(--red-text);border-color:var(--red-light)}.btn-danger:hover{background:#f5c6c2}
+  .btn-outline{background:white;border-color:var(--border2);color:var(--text)}.btn-outline:hover{background:var(--surface2)}
+  .btn-edit{background:var(--blue-light);color:var(--blue-text);border-color:var(--blue-light)}.btn-edit:hover{background:#d0e4fd}
+  .btn-row{display:flex;gap:8px;margin-top:16px;align-items:center}
+  .stock-bar-wrap{background:var(--surface2);border-radius:4px;height:8px;overflow:hidden;margin:6px 0 4px}
+  .stock-bar{height:8px;border-radius:4px;background:var(--blue);transition:width .4s}
+  .inv-total{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--surface2);border-radius:var(--radius-sm);margin-top:12px;font-weight:600;font-size:15px}
+  .inv-total span:last-child{font-family:'DM Mono',monospace;color:var(--blue);font-size:18px}
+  .charge-note{background:var(--blue-light);color:var(--blue-text);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;margin-top:12px;line-height:1.6}
+  .alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:12px;display:none}
+  .alert-success{background:var(--green-light);color:var(--green-text)}
+  .alert-error{background:var(--red-light);color:var(--red-text)}
+  .empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+  .mono{font-family:'DM Mono',monospace}
+  .text-right{text-align:right}.text-blue{color:var(--blue)}.fw500{font-weight:500}.fw600{font-weight:600}.mt8{margin-top:8px}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:1000}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto}
+  .modal-title{font-size:16px;font-weight:600;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+  .modal-close{cursor:pointer;color:var(--text3);font-size:22px;line-height:1;background:none;border:none;padding:0 4px}
+  .modal-close:hover{color:var(--text)}
+  @media print{.sidebar,.btn-row,.nav-item,.page-header button,#print-btn,.modal-overlay{display:none!important}.main{padding:0}.app{display:block;height:auto}}
 </style>
 </head>
 <body>
 <div class="app">
-
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">
-        <div class="logo-icon">
-          <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-        </div>
-        <div>
-          <div class="logo-name">KOH Manager</div>
-          <div class="logo-sub">IBC Warehouse</div>
-        </div>
+        <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>
+        <div><div class="logo-name">KOH Manager</div><div class="logo-sub">IBC Warehouse</div></div>
       </div>
     </div>
     <nav class="nav">
       <div class="nav-section">Overview</div>
       <div class="nav-item active" onclick="showPage('dashboard',this)">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Dashboard
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
       </div>
       <div class="nav-item" onclick="showPage('inventory',this)">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Inventory
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inventory
       </div>
       <div class="nav-section">Transactions</div>
       <div class="nav-item" onclick="showPage('inbound',this)">
-        <svg viewBox="0 0 24 24"><path d="M16 16l-4 4-4-4M12 12v8M20 16.5a4 4 0 0 0-3-3.87"/><path d="M18 5a3 3 0 0 0-6 0 3 3 0 0 0-6 0 4 4 0 0 0 0 8h14a4 4 0 0 0 0-8z"/></svg>
-        Inbound
+        <svg viewBox="0 0 24 24"><path d="M16 16l-4 4-4-4M12 12v8M20 16.5a4 4 0 0 0-3-3.87"/><path d="M18 5a3 3 0 0 0-6 0 3 3 0 0 0-6 0 4 4 0 0 0 0 8h14a4 4 0 0 0 0-8z"/></svg>Inbound
       </div>
       <div class="nav-item" onclick="showPage('outbound',this)">
-        <svg viewBox="0 0 24 24"><path d="M8 8l4-4 4 4M12 4v8M20 7.5a4 4 0 0 1 0 8H4a4 4 0 0 1 0-8"/><path d="M12 16v4"/></svg>
-        Outbound
+        <svg viewBox="0 0 24 24"><path d="M8 8l4-4 4 4M12 4v8M20 7.5a4 4 0 0 1 0 8H4a4 4 0 0 1 0-8"/><path d="M12 16v4"/></svg>Outbound
       </div>
       <div class="nav-section">Billing</div>
       <div class="nav-item" onclick="showPage('invoice',this)">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        Monthly Invoice
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Monthly Invoice
       </div>
     </nav>
-    <div class="sidebar-footer">KOH Management v1.0</div>
+    <div class="sidebar-footer">KOH Management v1.1</div>
   </div>
 
-  <!-- Main -->
   <div class="main">
 
     <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div class="page-header">
-        <div>
-          <div class="page-title">Dashboard</div>
-          <div class="page-sub" id="db-date"></div>
-        </div>
+        <div><div class="page-title">Dashboard</div><div class="page-sub" id="db-date"></div></div>
       </div>
       <div class="metrics">
-        <div class="metric">
-          <div class="metric-label">IBC in stock</div>
-          <div class="metric-val blue" id="db-stock">—</div>
-          <div class="metric-sub" id="db-stock-sub">loading...</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Total outbounded</div>
-          <div class="metric-val green" id="db-out">—</div>
-          <div class="metric-sub" id="db-out-sub">this month</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Outbound runs</div>
-          <div class="metric-val amber" id="db-runs">—</div>
-          <div class="metric-sub" id="db-runs-sub">this month</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Accrued charges</div>
-          <div class="metric-val blue" id="db-charges" style="font-size:20px">—</div>
-          <div class="metric-sub" id="db-charges-sub">this month</div>
-        </div>
+        <div class="metric"><div class="metric-label">IBC in stock</div><div class="metric-val blue" id="db-stock">—</div><div class="metric-sub" id="db-stock-sub">loading...</div></div>
+        <div class="metric"><div class="metric-label">Total outbounded</div><div class="metric-val green" id="db-out">—</div><div class="metric-sub">this month</div></div>
+        <div class="metric"><div class="metric-label">Outbound runs</div><div class="metric-val amber" id="db-runs">—</div><div class="metric-sub">this month</div></div>
+        <div class="metric"><div class="metric-label">Accrued charges</div><div class="metric-val blue" id="db-charges" style="font-size:20px">—</div><div class="metric-sub">this month</div></div>
       </div>
       <div class="grid2">
         <div class="card">
           <div class="card-title">Stock level</div>
-          <div id="db-stock-bar-label" style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px">
-            <span id="sl-remaining">—</span><span id="sl-pct">—</span>
-          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px"><span id="sl-remaining">—</span><span id="sl-pct">—</span></div>
           <div class="stock-bar-wrap"><div class="stock-bar" id="sl-bar" style="width:0%"></div></div>
           <div style="font-size:11px;color:var(--text3);margin-top:4px" id="sl-label">—</div>
         </div>
-        <div class="card">
-          <div class="card-title">Recent activity</div>
-          <div id="db-activity">
-            <div class="empty" style="padding:16px">
-              <div style="color:var(--text3);font-size:13px">No activity yet</div>
-            </div>
-          </div>
-        </div>
+        <div class="card"><div class="card-title">Recent activity</div><div id="db-activity"><div class="empty">No activity yet</div></div></div>
       </div>
       <div class="card">
-        <div class="card-header">
-          <div class="card-title">Charge breakdown — this month</div>
-        </div>
+        <div class="card-title">Charge breakdown — this month</div>
         <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Item</th><th>Unit</th><th>Qty</th><th>Rate (USD)</th><th class="text-right">Subtotal (USD)</th></tr></thead>
-            <tbody id="db-charge-table">
-              <tr><td colspan="5" class="empty" style="text-align:center;color:var(--text3)">Loading...</td></tr>
-            </tbody>
-          </table>
+          <table><thead><tr><th>Item</th><th>Unit</th><th>Qty</th><th>Rate (USD)</th><th class="text-right">Subtotal (USD)</th></tr></thead>
+          <tbody id="db-charge-table"></tbody></table>
         </div>
-        <div class="inv-total">
-          <span>Total due (USD)</span>
-          <span id="db-total">$0.00</span>
-        </div>
+        <div class="inv-total"><span>Total due (USD)</span><span id="db-total">$0.00</span></div>
       </div>
     </div>
 
     <!-- INVENTORY -->
     <div class="page" id="page-inventory">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Inventory status</div>
-          <div class="page-sub">Real-time IBC stock per customer</div>
-        </div>
-      </div>
+      <div class="page-header"><div><div class="page-title">Inventory status</div><div class="page-sub">Real-time IBC stock per customer</div></div></div>
       <div class="card">
         <div class="card-title">Customer stock snapshot</div>
         <div class="tbl-wrap mt8">
-          <table>
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Inbounded</th>
-                <th>Outbounded</th>
-                <th>In stock</th>
-                <th>Days stored (avg)</th>
-                <th>Storage fee (accrued)</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="inv-table">
-              <tr><td colspan="7"><div class="empty">No records yet</div></td></tr>
-            </tbody>
-          </table>
+          <table><thead><tr><th>Customer</th><th>Inbounded</th><th>Outbounded</th><th>In stock</th><th>Days stored</th><th>Storage fee (accrued)</th><th>Status</th></tr></thead>
+          <tbody id="inv-table"><tr><td colspan="7"><div class="empty">No records yet</div></td></tr></tbody></table>
         </div>
       </div>
       <div class="card">
         <div class="card-title">Storage accrual detail</div>
         <div class="tbl-wrap mt8">
-          <table>
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Period</th>
-                <th>Stock qty</th>
-                <th>Days</th>
-                <th>Rate / IBC / day</th>
-                <th class="text-right">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody id="inv-detail-table">
-              <tr><td colspan="6"><div class="empty">No records yet</div></td></tr>
-            </tbody>
-          </table>
+          <table><thead><tr><th>Customer</th><th>Period</th><th>Stock qty</th><th>Days</th><th>Rate / IBC / day</th><th class="text-right">Subtotal</th></tr></thead>
+          <tbody id="inv-detail-table"><tr><td colspan="6"><div class="empty">No records yet</div></td></tr></tbody></table>
         </div>
       </div>
     </div>
 
     <!-- INBOUND -->
     <div class="page" id="page-inbound">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Register inbound</div>
-          <div class="page-sub">Record new IBC arrivals</div>
-        </div>
-      </div>
+      <div class="page-header"><div><div class="page-title">Register inbound</div><div class="page-sub">Record new IBC arrivals</div></div></div>
       <div class="alert alert-success" id="ib-success">Inbound registered successfully.</div>
       <div class="alert alert-error" id="ib-error">Error saving. Please try again.</div>
       <div class="card">
@@ -345,100 +195,53 @@
           </div>
         </div>
         <div class="form-grid">
-          <div class="form-group"><div class="form-label">Diptube w/ QC Guard</div>
-            <select id="ib-diptube">
-              <option value="no">No</option>
-              <option value="yes">Yes — $105.00 / IBC</option>
-            </select>
-          </div>
           <div class="form-group"><div class="form-label">Notes (optional)</div><input id="ib-notes" type="text" placeholder="e.g. Batch #2025-A"></div>
         </div>
-        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;color:var(--text2)">
-          <strong>Charges on inbound:</strong> Inbound handling $8.00/IBC + Hazmat $3.00/IBC (if applicable) + Diptube $105.00/IBC (if selected)
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;color:var(--text2);margin-bottom:4px">
+          <strong>Charges on inbound:</strong> Inbound handling $8.00/IBC + Hazmat $3.00/IBC (if applicable)
         </div>
-        <div class="btn-row">
-          <button class="btn btn-primary" onclick="registerInbound()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Register inbound
-          </button>
-        </div>
+        <div class="btn-row"><button class="btn btn-primary" onclick="registerInbound()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Register inbound</button></div>
       </div>
       <div class="card">
         <div class="card-title">Inbound history</div>
         <div class="tbl-wrap mt8">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Customer</th>
-                <th>IBC qty</th>
-                <th>Hazmat</th>
-                <th>Diptube</th>
-                <th>Notes</th>
-                <th class="text-right">Inbound charges</th>
-              </tr>
-            </thead>
-            <tbody id="ib-history">
-              <tr><td colspan="7"><div class="empty">No inbound records yet</div></td></tr>
-            </tbody>
-          </table>
+          <table><thead><tr><th>Date</th><th>Customer</th><th>IBC qty</th><th>Hazmat</th><th>Notes</th><th class="text-right">Charges</th><th>Actions</th></tr></thead>
+          <tbody id="ib-history"><tr><td colspan="7"><div class="empty">No inbound records yet</div></td></tr></tbody></table>
         </div>
       </div>
     </div>
 
     <!-- OUTBOUND -->
     <div class="page" id="page-outbound">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Register outbound</div>
-          <div class="page-sub">Record IBC dispatches and transport fees</div>
-        </div>
-      </div>
+      <div class="page-header"><div><div class="page-title">Register outbound</div><div class="page-sub">Record IBC dispatches, transport fees and diptube installation</div></div></div>
       <div class="alert alert-success" id="ob-success">Outbound registered successfully.</div>
       <div class="alert alert-error" id="ob-error">Error saving. Please try again.</div>
       <div class="card">
         <div class="card-title">New outbound entry</div>
         <div class="form-grid">
-          <div class="form-group"><div class="form-label">Customer</div>
-            <select id="ob-customer"></select>
-          </div>
+          <div class="form-group"><div class="form-label">Customer</div><select id="ob-customer"></select></div>
           <div class="form-group"><div class="form-label">Outbound date</div><input id="ob-date" type="date"></div>
         </div>
         <div class="form-grid">
           <div class="form-group"><div class="form-label">IBC quantity</div><input id="ob-qty" type="number" min="1" placeholder="e.g. 10"></div>
           <div class="form-group"><div class="form-label">Transportation fee (USD)</div><input id="ob-transport" type="number" min="0" step="0.01" placeholder="e.g. 150.00"></div>
         </div>
-        <div class="form-group" style="margin-bottom:12px"><div class="form-label">Destination / notes</div><input id="ob-notes" type="text" placeholder="Delivery address or notes"></div>
-        <div style="background:var(--amber-light);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--amber-text)" id="ob-stock-info">
-          Select a customer to see available stock.
+        <div class="form-grid">
+          <div class="form-group">
+            <div class="form-label">Diptube w/ QC Guard — qty installed</div>
+            <input id="ob-diptube" type="number" min="0" value="0" placeholder="0 = none installed">
+            <div style="font-size:11px;color:var(--text3);margin-top:3px">$105.00/IBC · can be less than total outbound qty</div>
+          </div>
+          <div class="form-group"><div class="form-label">Destination / notes</div><input id="ob-notes" type="text" placeholder="Delivery address or notes"></div>
         </div>
-        <div class="btn-row">
-          <button class="btn btn-primary" onclick="registerOutbound()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="1"/><path d="M12 14h6M12 17h3"/></svg>
-            Register outbound
-          </button>
-        </div>
+        <div style="border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;margin-bottom:4px" id="ob-stock-info">Select a customer to see available stock.</div>
+        <div class="btn-row"><button class="btn btn-primary" onclick="registerOutbound()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="1"/></svg>Register outbound</button></div>
       </div>
       <div class="card">
         <div class="card-title">Outbound history</div>
         <div class="tbl-wrap mt8">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Customer</th>
-                <th>IBC qty</th>
-                <th>Stock after</th>
-                <th>Transport fee</th>
-                <th>Handling</th>
-                <th>Notes</th>
-                <th class="text-right">Total charges</th>
-              </tr>
-            </thead>
-            <tbody id="ob-history">
-              <tr><td colspan="8"><div class="empty">No outbound records yet</div></td></tr>
-            </tbody>
-          </table>
+          <table><thead><tr><th>Date</th><th>Customer</th><th>IBC qty</th><th>Stock after</th><th>Diptube qty</th><th>Transport</th><th>Handling</th><th>Notes</th><th class="text-right">Total</th><th>Actions</th></tr></thead>
+          <tbody id="ob-history"><tr><td colspan="10"><div class="empty">No outbound records yet</div></td></tr></tbody></table>
         </div>
       </div>
     </div>
@@ -446,63 +249,82 @@
     <!-- INVOICE -->
     <div class="page" id="page-invoice">
       <div class="page-header">
-        <div>
-          <div class="page-title">Monthly invoice</div>
-          <div class="page-sub">Generate and print end-of-month billing</div>
-        </div>
+        <div><div class="page-title">Monthly invoice</div><div class="page-sub">Generate and print end-of-month billing</div></div>
         <div style="display:flex;gap:8px;align-items:center">
           <select id="inv-month" onchange="renderInvoice()" style="width:160px"></select>
           <select id="inv-customer" onchange="renderInvoice()" style="width:160px"></select>
-          <button class="btn btn-outline" id="print-btn" onclick="window.print()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Print / PDF
-          </button>
+          <button class="btn btn-outline" id="print-btn" onclick="window.print()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print / PDF</button>
         </div>
       </div>
       <div class="card" id="invoice-card">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)">
-          <div>
-            <div style="font-size:18px;font-weight:600" id="inv-title">Invoice</div>
-            <div style="font-size:13px;color:var(--text2);margin-top:4px" id="inv-meta">Select month and customer</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:12px;color:var(--text3)">Billing period</div>
-            <div style="font-weight:600;font-family:'DM Mono',monospace" id="inv-period">—</div>
-          </div>
+          <div><div style="font-size:18px;font-weight:600" id="inv-title">Invoice</div><div style="font-size:13px;color:var(--text2);margin-top:4px" id="inv-meta">Select month and customer</div></div>
+          <div style="text-align:right"><div style="font-size:12px;color:var(--text3)">Billing period</div><div style="font-weight:600;font-family:'DM Mono',monospace" id="inv-period">—</div></div>
         </div>
         <div class="tbl-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:4%">#</th>
-                <th style="width:32%">Description</th>
-                <th style="width:15%">Unit</th>
-                <th style="width:8%">Qty</th>
-                <th style="width:14%">Unit rate (USD)</th>
-                <th style="width:14%;text-align:right">Subtotal (USD)</th>
-                <th style="width:10%">Type</th>
-              </tr>
-            </thead>
-            <tbody id="inv-lines">
-              <tr><td colspan="7"><div class="empty">Select month and customer above</div></td></tr>
-            </tbody>
-          </table>
+          <table><thead><tr><th style="width:4%">#</th><th style="width:32%">Description</th><th style="width:13%">Unit</th><th style="width:8%">Qty</th><th style="width:14%">Unit rate (USD)</th><th style="width:15%;text-align:right">Subtotal (USD)</th><th style="width:10%">Type</th></tr></thead>
+          <tbody id="inv-lines"><tr><td colspan="7"><div class="empty">Select month and customer above</div></td></tr></tbody></table>
         </div>
-        <div class="inv-total">
-          <span>Total due (USD)</span>
-          <span id="inv-total">$0.00</span>
-        </div>
+        <div class="inv-total"><span>Total due (USD)</span><span id="inv-total">$0.00</span></div>
         <div class="charge-note" id="inv-note" style="display:none"></div>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- Firebase -->
+<!-- Edit Inbound Modal -->
+<div class="modal-overlay" id="modal-ib">
+  <div class="modal">
+    <div class="modal-title">Edit inbound record <button class="modal-close" onclick="closeModal('modal-ib')">×</button></div>
+    <input type="hidden" id="edit-ib-id">
+    <div class="form-grid">
+      <div class="form-group"><div class="form-label">Customer name</div><input id="edit-ib-customer" type="text"></div>
+      <div class="form-group"><div class="form-label">Inbound date</div><input id="edit-ib-date" type="date"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><div class="form-label">IBC quantity</div><input id="edit-ib-qty" type="number" min="1"></div>
+      <div class="form-group"><div class="form-label">Hazmat class</div>
+        <select id="edit-ib-hazmat">
+          <option value="class8">Class 8 — Corrosive ($3.00/IBC)</option>
+          <option value="none">None ($0.00)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:16px"><div class="form-label">Notes</div><input id="edit-ib-notes" type="text"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEditInbound()">Save changes</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-ib')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Outbound Modal -->
+<div class="modal-overlay" id="modal-ob">
+  <div class="modal">
+    <div class="modal-title">Edit outbound record <button class="modal-close" onclick="closeModal('modal-ob')">×</button></div>
+    <input type="hidden" id="edit-ob-id">
+    <div class="form-grid">
+      <div class="form-group"><div class="form-label">Customer</div><input id="edit-ob-customer" type="text" readonly style="background:var(--surface2);color:var(--text3)"></div>
+      <div class="form-group"><div class="form-label">Outbound date</div><input id="edit-ob-date" type="date"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><div class="form-label">IBC quantity</div><input id="edit-ob-qty" type="number" min="1"></div>
+      <div class="form-group"><div class="form-label">Transportation fee (USD)</div><input id="edit-ob-transport" type="number" min="0" step="0.01"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><div class="form-label">Diptube qty installed</div><input id="edit-ob-diptube" type="number" min="0"></div>
+      <div class="form-group"><div class="form-label">Notes</div><input id="edit-ob-notes" type="text"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEditOutbound()">Save changes</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-ob')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, query, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDTmxCLFaLw5ybxdESwBoKWeAYSmT3_ZRM",
@@ -510,462 +332,323 @@
     projectId: "koh-management",
     storageBucket: "koh-management.firebasestorage.app",
     messagingSenderId: "819566878224",
-    appId: "1:819566878224:web:6507b267dd30b24d4cf495",
-    measurementId: "G-ZJWM005CVL"
+    appId: "1:819566878224:web:6507b267dd30b24d4cf495"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const RATE = { inbound:8, outbound:10, hazmat:3, storage:1, diptube:105 };
+  let inbounds=[], outbounds=[];
 
-  // Rates
-  const RATE = {
-    inbound: 8,
-    outbound: 10,
-    hazmat: 3,
-    storage: 1,
-    diptube: 105
-  };
+  const fmt = n => '$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  const fmtDate = d => new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const today = () => new Date().toISOString().slice(0,10);
+  const showAlert = (id,dur=3000) => { const el=document.getElementById(id); el.style.display='block'; setTimeout(()=>el.style.display='none',dur); };
 
-  // State
-  let inbounds = [];
-  let outbounds = [];
+  window.closeModal = id => document.getElementById(id).classList.remove('open');
 
-  // Utils
-  function fmt(n) { return '$' + Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-  function fmtDate(d) { return new Date(d + 'T12:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); }
-  function today() { return new Date().toISOString().slice(0,10); }
-
-  // Show alert
-  function showAlert(id, duration=3000) {
-    const el = document.getElementById(id);
-    el.style.display = 'block';
-    setTimeout(() => el.style.display = 'none', duration);
-  }
-
-  // Load all data
-  async function loadAll() {
+  async function loadAll(){
     try {
-      const ibQ = query(collection(db,'inbounds'), orderBy('date'));
-      const obQ = query(collection(db,'outbounds'), orderBy('date'));
-      const [ibSnap, obSnap] = await Promise.all([getDocs(ibQ), getDocs(obQ)]);
-      inbounds = ibSnap.docs.map(d => ({id:d.id, ...d.data()}));
-      outbounds = obSnap.docs.map(d => ({id:d.id, ...d.data()}));
+      const [ibSnap,obSnap] = await Promise.all([
+        getDocs(query(collection(db,'inbounds'),orderBy('date'))),
+        getDocs(query(collection(db,'outbounds'),orderBy('date')))
+      ]);
+      inbounds = ibSnap.docs.map(d=>({id:d.id,...d.data()}));
+      outbounds = obSnap.docs.map(d=>({id:d.id,...d.data()}));
       renderAll();
-    } catch(e) {
-      console.error(e);
-    }
+    } catch(e){ console.error(e); }
   }
 
-  // Compute customer stock map
-  function getCustomerMap() {
-    const map = {};
-    inbounds.forEach(r => {
-      if (!map[r.customer]) map[r.customer] = { inbounded:0, outbounded:0, inboundRecords:[], outboundRecords:[] };
-      map[r.customer].inbounded += r.qty;
-      map[r.customer].inboundRecords.push(r);
-    });
-    outbounds.forEach(r => {
-      if (!map[r.customer]) map[r.customer] = { inbounded:0, outbounded:0, inboundRecords:[], outboundRecords:[] };
-      map[r.customer].outbounded += r.qty;
-      map[r.customer].outboundRecords.push(r);
-    });
-    Object.keys(map).forEach(c => { map[c].stock = map[c].inbounded - map[c].outbounded; });
+  function getCustomerMap(){
+    const map={};
+    inbounds.forEach(r=>{ if(!map[r.customer])map[r.customer]={inbounded:0,outbounded:0}; map[r.customer].inbounded+=r.qty; });
+    outbounds.forEach(r=>{ if(!map[r.customer])map[r.customer]={inbounded:0,outbounded:0}; map[r.customer].outbounded+=r.qty; });
+    Object.keys(map).forEach(c=>{ map[c].stock=map[c].inbounded-map[c].outbounded; });
     return map;
   }
 
-  // Storage fee calculation per customer
-  function calcStorageFee(customer, untilDate) {
-    const until = untilDate || today();
-    const ibRecs = inbounds.filter(r => r.customer === customer).sort((a,b) => a.date.localeCompare(b.date));
-    const obRecs = outbounds.filter(r => r.customer === customer).sort((a,b) => a.date.localeCompare(b.date));
-    if (!ibRecs.length) return { total: 0, periods: [] };
-
-    // Build event timeline
-    let events = [];
-    ibRecs.forEach(r => events.push({ date: r.date, delta: r.qty }));
-    obRecs.forEach(r => events.push({ date: r.date, delta: -r.qty }));
-    events.sort((a,b) => a.date.localeCompare(b.date));
-
-    // Collapse same-date events
-    const byDate = {};
-    events.forEach(e => { byDate[e.date] = (byDate[e.date]||0) + e.delta; });
-    const dates = Object.keys(byDate).sort();
-
-    let periods = [];
-    let stock = 0;
-    for (let i = 0; i < dates.length; i++) {
-      const startDate = dates[i];
-      const endDate = i+1 < dates.length ? dates[i+1] : until;
-      stock += byDate[startDate];
-      if (stock <= 0) continue;
-      const days = Math.max(0, Math.round((new Date(endDate) - new Date(startDate)) / 86400000));
-      if (days > 0 && startDate < until) {
-        const actualDays = endDate <= until ? days : Math.round((new Date(until) - new Date(startDate)) / 86400000);
-        periods.push({ start: startDate, end: endDate <= until ? endDate : until, qty: stock, days: actualDays, sub: stock * actualDays * RATE.storage });
-      }
+  function calcStorageFee(customer, untilDate){
+    const until=untilDate||today();
+    const ibRecs=inbounds.filter(r=>r.customer===customer).sort((a,b)=>a.date.localeCompare(b.date));
+    const obRecs=outbounds.filter(r=>r.customer===customer).sort((a,b)=>a.date.localeCompare(b.date));
+    if(!ibRecs.length) return {total:0,periods:[]};
+    const byDate={};
+    ibRecs.forEach(r=>{ byDate[r.date]=(byDate[r.date]||0)+r.qty; });
+    obRecs.forEach(r=>{ byDate[r.date]=(byDate[r.date]||0)-r.qty; });
+    const dates=Object.keys(byDate).sort();
+    let periods=[],stock=0;
+    for(let i=0;i<dates.length;i++){
+      const startDate=dates[i];
+      const endDate=i+1<dates.length?dates[i+1]:until;
+      stock+=byDate[startDate];
+      if(stock<=0) continue;
+      const end=endDate<=until?endDate:until;
+      const days=Math.max(0,Math.round((new Date(end)-new Date(startDate))/86400000));
+      if(days>0&&startDate<until) periods.push({start:startDate,end,qty:stock,days,sub:stock*days*RATE.storage});
     }
-    return { total: periods.reduce((s,p) => s+p.sub, 0), periods };
+    return {total:periods.reduce((s,p)=>s+p.sub,0),periods};
   }
 
-  // Render dashboard
-  function renderDashboard() {
-    const now = new Date();
-    document.getElementById('db-date').textContent = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
-    const map = getCustomerMap();
-    const customers = Object.keys(map);
-    const totalStock = customers.reduce((s,c) => s+map[c].stock, 0);
-    const totalIn = customers.reduce((s,c) => s+map[c].inbounded, 0);
-    const totalOut = customers.reduce((s,c) => s+map[c].outbounded, 0);
-
-    // This month
-    const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-    const monthObs = outbounds.filter(r => r.date.startsWith(ym));
-    const monthRuns = monthObs.length;
-    const monthOutQty = monthObs.reduce((s,r) => s+r.qty, 0);
-
-    // Monthly charges
-    const monthIbs = inbounds.filter(r => r.date.startsWith(ym));
-    const ibHandling = monthIbs.reduce((s,r) => s + r.qty * RATE.inbound, 0);
-    const hazmatCharge = monthIbs.reduce((s,r) => s + (r.hazmat==='class8' ? r.qty*RATE.hazmat : 0), 0);
-    const diptubeCharge = monthIbs.reduce((s,r) => s + (r.diptube==='yes' ? r.qty*RATE.diptube : 0), 0);
-    const obHandling = monthObs.reduce((s,r) => s + r.qty * RATE.outbound, 0);
-    const transport = monthObs.reduce((s,r) => s + (r.transport||0), 0);
-    const storageFees = customers.reduce((s,c) => s + calcStorageFee(c).total, 0);
-    const totalCharges = ibHandling + hazmatCharge + diptubeCharge + obHandling + transport + storageFees;
-
-    document.getElementById('db-stock').textContent = totalStock;
-    document.getElementById('db-stock-sub').textContent = `of ${totalIn} inbounded`;
-    document.getElementById('db-out').textContent = monthOutQty;
-    document.getElementById('db-runs').textContent = monthRuns;
-    document.getElementById('db-charges').textContent = fmt(totalCharges);
-
-    // Stock bar
-    const pct = totalIn > 0 ? Math.round(totalStock/totalIn*100) : 0;
-    document.getElementById('sl-remaining').textContent = `${totalStock} remaining`;
-    document.getElementById('sl-pct').textContent = `${pct}%`;
-    document.getElementById('sl-bar').style.width = pct+'%';
-    document.getElementById('sl-label').textContent = `${totalOut} IBCs dispatched out of ${totalIn}`;
-
-    // Activity
-    const allEvents = [
-      ...inbounds.map(r => ({date:r.date, type:'in', qty:r.qty, customer:r.customer})),
-      ...outbounds.map(r => ({date:r.date, type:'out', qty:r.qty, customer:r.customer}))
-    ].sort((a,b) => b.date.localeCompare(a.date)).slice(0,5);
-
-    const actEl = document.getElementById('db-activity');
-    if (!allEvents.length) {
-      actEl.innerHTML = '<div class="empty" style="padding:16px"><div style="color:var(--text3);font-size:13px">No activity yet</div></div>';
-    } else {
-      actEl.innerHTML = allEvents.map(e => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:13px">
-          <span><span class="badge ${e.type==='in'?'badge-in':'badge-out'}">${e.type==='in'?'IN':'OUT'}</span>
-          <span style="margin-left:8px">${e.qty} IBCs — ${e.customer}</span></span>
-          <span style="color:var(--text3);font-size:11px">${fmtDate(e.date)}</span>
-        </div>`).join('');
-    }
-
-    // Charge table
-    const rows = [
-      ['Inbound handling fee','per IBC', monthIbs.reduce((s,r)=>s+r.qty,0), fmt(RATE.inbound), ibHandling],
-      ['Outbound handling fee','per IBC', monthOutQty, fmt(RATE.outbound), obHandling],
-      ['Hazmat surcharge (Class 8)','per IBC', monthIbs.filter(r=>r.hazmat==='class8').reduce((s,r)=>s+r.qty,0), fmt(RATE.hazmat), hazmatCharge],
-      ['Storage fee','IBC/day','—', fmt(RATE.storage)+'/IBC/day', storageFees],
-      ['Transportation fee','per run', monthRuns,'—', transport],
-      ['Diptube w/ QC Guard','per IBC', monthIbs.filter(r=>r.diptube==='yes').reduce((s,r)=>s+r.qty,0), fmt(RATE.diptube), diptubeCharge],
-    ];
-    document.getElementById('db-charge-table').innerHTML = rows.map(r =>
-      `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="mono">${r[3]}</td><td class="text-right mono">${fmt(r[4])}</td></tr>`
-    ).join('');
-    document.getElementById('db-total').textContent = fmt(totalCharges);
+  function renderDashboard(){
+    const now=new Date();
+    document.getElementById('db-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    const map=getCustomerMap();
+    const customers=Object.keys(map);
+    const totalStock=customers.reduce((s,c)=>s+map[c].stock,0);
+    const totalIn=customers.reduce((s,c)=>s+map[c].inbounded,0);
+    const totalOut=customers.reduce((s,c)=>s+map[c].outbounded,0);
+    const ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    const mIbs=inbounds.filter(r=>r.date.startsWith(ym));
+    const mObs=outbounds.filter(r=>r.date.startsWith(ym));
+    const ibH=mIbs.reduce((s,r)=>s+r.qty*RATE.inbound,0);
+    const haz=mIbs.reduce((s,r)=>s+(r.hazmat==='class8'?r.qty*RATE.hazmat:0),0);
+    const obH=mObs.reduce((s,r)=>s+r.qty*RATE.outbound,0);
+    const trn=mObs.reduce((s,r)=>s+(r.transport||0),0);
+    const dip=mObs.reduce((s,r)=>s+(r.diptubeQty||0)*RATE.diptube,0);
+    const sto=customers.reduce((s,c)=>s+calcStorageFee(c).total,0);
+    const total=ibH+haz+obH+trn+dip+sto;
+    document.getElementById('db-stock').textContent=totalStock;
+    document.getElementById('db-stock-sub').textContent=`of ${totalIn} inbounded`;
+    document.getElementById('db-out').textContent=mObs.reduce((s,r)=>s+r.qty,0);
+    document.getElementById('db-runs').textContent=mObs.length;
+    document.getElementById('db-charges').textContent=fmt(total);
+    const pct=totalIn>0?Math.round(totalStock/totalIn*100):0;
+    document.getElementById('sl-remaining').textContent=`${totalStock} remaining`;
+    document.getElementById('sl-pct').textContent=`${pct}%`;
+    document.getElementById('sl-bar').style.width=pct+'%';
+    document.getElementById('sl-label').textContent=`${totalOut} IBCs dispatched out of ${totalIn}`;
+    const events=[...inbounds.map(r=>({date:r.date,type:'in',qty:r.qty,customer:r.customer})),...outbounds.map(r=>({date:r.date,type:'out',qty:r.qty,customer:r.customer}))].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+    document.getElementById('db-activity').innerHTML=events.length?events.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:13px"><span><span class="badge ${e.type==='in'?'badge-in':'badge-out'}">${e.type==='in'?'IN':'OUT'}</span><span style="margin-left:8px">${e.qty} IBCs — ${e.customer}</span></span><span style="color:var(--text3);font-size:11px">${fmtDate(e.date)}</span></div>`).join(''):'<div class="empty">No activity yet</div>';
+    document.getElementById('db-charge-table').innerHTML=[
+      ['Inbound handling fee','per IBC',mIbs.reduce((s,r)=>s+r.qty,0),fmt(RATE.inbound),ibH],
+      ['Outbound handling fee','per IBC',mObs.reduce((s,r)=>s+r.qty,0),fmt(RATE.outbound),obH],
+      ['Hazmat surcharge (Class 8)','per IBC',mIbs.filter(r=>r.hazmat==='class8').reduce((s,r)=>s+r.qty,0),fmt(RATE.hazmat),haz],
+      ['Storage fee','IBC/day','—',fmt(RATE.storage)+'/IBC/day',sto],
+      ['Transportation fee','per run',mObs.length,'—',trn],
+      ['Diptube w/ QC Guard','per IBC',mObs.reduce((s,r)=>s+(r.diptubeQty||0),0),fmt(RATE.diptube),dip],
+    ].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="mono">${r[3]}</td><td class="text-right mono">${fmt(r[4])}</td></tr>`).join('');
+    document.getElementById('db-total').textContent=fmt(total);
   }
 
-  // Render inventory
-  function renderInventory() {
-    const map = getCustomerMap();
-    const customers = Object.keys(map);
-    const todayStr = today();
-
-    if (!customers.length) {
-      document.getElementById('inv-table').innerHTML = '<tr><td colspan="7"><div class="empty">No records yet</div></td></tr>';
-      document.getElementById('inv-detail-table').innerHTML = '<tr><td colspan="6"><div class="empty">No records yet</div></td></tr>';
+  function renderInventory(){
+    const map=getCustomerMap();
+    const customers=Object.keys(map);
+    if(!customers.length){
+      document.getElementById('inv-table').innerHTML='<tr><td colspan="7"><div class="empty">No records yet</div></td></tr>';
+      document.getElementById('inv-detail-table').innerHTML='<tr><td colspan="6"><div class="empty">No records yet</div></td></tr>';
       return;
     }
-
-    document.getElementById('inv-table').innerHTML = customers.map(c => {
-      const {inbounded, outbounded, stock} = map[c];
-      const sf = calcStorageFee(c);
-      const firstIb = inbounds.filter(r=>r.customer===c).sort((a,b)=>a.date.localeCompare(b.date))[0];
-      const days = firstIb ? Math.round((new Date(todayStr)-new Date(firstIb.date))/86400000) : 0;
-      return `<tr>
-        <td class="fw500">${c}</td>
-        <td>${inbounded}</td>
-        <td>${outbounded}</td>
-        <td class="fw600 text-blue">${stock}</td>
-        <td>${days}</td>
-        <td class="mono">${fmt(sf.total)}</td>
-        <td><span class="badge badge-active">Active</span></td>
-      </tr>`;
+    document.getElementById('inv-table').innerHTML=customers.map(c=>{
+      const {inbounded,outbounded,stock}=map[c];
+      const sf=calcStorageFee(c);
+      const firstIb=inbounds.filter(r=>r.customer===c).sort((a,b)=>a.date.localeCompare(b.date))[0];
+      const days=firstIb?Math.round((new Date(today())-new Date(firstIb.date))/86400000):0;
+      return `<tr><td class="fw500">${c}</td><td>${inbounded}</td><td>${outbounded}</td><td class="fw600 text-blue">${stock}</td><td>${days}</td><td class="mono">${fmt(sf.total)}</td><td><span class="badge badge-active">Active</span></td></tr>`;
     }).join('');
-
-    let detailRows = '';
-    customers.forEach(c => {
-      const sf = calcStorageFee(c);
-      sf.periods.forEach(p => {
-        detailRows += `<tr>
-          <td>${c}</td>
-          <td>${fmtDate(p.start)} – ${fmtDate(p.end)}</td>
-          <td>${p.qty}</td>
-          <td>${p.days}</td>
-          <td class="mono">${fmt(RATE.storage)}</td>
-          <td class="text-right mono">${fmt(p.sub)}</td>
-        </tr>`;
-      });
-    });
-    document.getElementById('inv-detail-table').innerHTML = detailRows || '<tr><td colspan="6"><div class="empty">No storage periods yet</div></td></tr>';
+    let detail='';
+    customers.forEach(c=>{ calcStorageFee(c).periods.forEach(p=>{ detail+=`<tr><td>${c}</td><td>${fmtDate(p.start)} – ${fmtDate(p.end)}</td><td>${p.qty}</td><td>${p.days}</td><td class="mono">${fmt(RATE.storage)}</td><td class="text-right mono">${fmt(p.sub)}</td></tr>`; }); });
+    document.getElementById('inv-detail-table').innerHTML=detail||'<tr><td colspan="6"><div class="empty">No storage periods yet</div></td></tr>';
   }
 
-  // Render inbound history
-  function renderInboundHistory() {
-    const sorted = [...inbounds].sort((a,b) => b.date.localeCompare(a.date));
-    if (!sorted.length) {
-      document.getElementById('ib-history').innerHTML = '<tr><td colspan="7"><div class="empty">No inbound records yet</div></td></tr>';
-      return;
-    }
-    document.getElementById('ib-history').innerHTML = sorted.map(r => {
-      const charge = r.qty*RATE.inbound + (r.hazmat==='class8'?r.qty*RATE.hazmat:0) + (r.diptube==='yes'?r.qty*RATE.diptube:0);
-      return `<tr>
-        <td>${fmtDate(r.date)}</td>
-        <td class="fw500">${r.customer}</td>
-        <td>${r.qty}</td>
-        <td><span class="badge ${r.hazmat==='class8'?'badge-warn':'badge-active'}">${r.hazmat==='class8'?'Class 8':'None'}</span></td>
-        <td>${r.diptube==='yes'?'Yes':'No'}</td>
-        <td style="color:var(--text3)">${r.notes||'—'}</td>
-        <td class="text-right mono fw500">${fmt(charge)}</td>
-      </tr>`;
-    }).join('');
+  function actionBtns(col,id){
+    return `<div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="openEdit('${col}','${id}')">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${col}','${id}')">Del</button></div>`;
   }
 
-  // Render outbound history
-  function renderOutboundHistory() {
-    const sorted = [...outbounds].sort((a,b) => b.date.localeCompare(a.date));
-    if (!sorted.length) {
-      document.getElementById('ob-history').innerHTML = '<tr><td colspan="8"><div class="empty">No outbound records yet</div></td></tr>';
-      return;
-    }
-    document.getElementById('ob-history').innerHTML = sorted.map(r => {
-      const handling = r.qty * RATE.outbound;
-      const total = handling + (r.transport||0);
-      return `<tr>
-        <td>${fmtDate(r.date)}</td>
-        <td class="fw500">${r.customer}</td>
-        <td>${r.qty}</td>
-        <td>${r.stockAfter ?? '—'}</td>
-        <td class="mono">${fmt(r.transport||0)}</td>
-        <td class="mono">${fmt(handling)}</td>
-        <td style="color:var(--text3)">${r.notes||'—'}</td>
-        <td class="text-right mono fw500">${fmt(total)}</td>
-      </tr>`;
-    }).join('');
+  function renderInboundHistory(){
+    const sorted=[...inbounds].sort((a,b)=>b.date.localeCompare(a.date));
+    document.getElementById('ib-history').innerHTML=sorted.length?sorted.map(r=>{
+      const charge=r.qty*RATE.inbound+(r.hazmat==='class8'?r.qty*RATE.hazmat:0);
+      return `<tr><td>${fmtDate(r.date)}</td><td class="fw500">${r.customer}</td><td>${r.qty}</td><td><span class="badge ${r.hazmat==='class8'?'badge-warn':'badge-active'}">${r.hazmat==='class8'?'Class 8':'None'}</span></td><td style="color:var(--text3)">${r.notes||'—'}</td><td class="text-right mono fw500">${fmt(charge)}</td><td>${actionBtns('inbounds',r.id)}</td></tr>`;
+    }).join(''):'<tr><td colspan="7"><div class="empty">No inbound records yet</div></td></tr>';
   }
 
-  // Render customer dropdowns
-  function renderCustomerDropdowns() {
-    const customers = [...new Set(inbounds.map(r=>r.customer))];
-    const map = getCustomerMap();
+  function renderOutboundHistory(){
+    const sorted=[...outbounds].sort((a,b)=>b.date.localeCompare(a.date));
+    document.getElementById('ob-history').innerHTML=sorted.length?sorted.map(r=>{
+      const handling=r.qty*RATE.outbound;
+      const dip=(r.diptubeQty||0)*RATE.diptube;
+      const total=handling+(r.transport||0)+dip;
+      return `<tr><td>${fmtDate(r.date)}</td><td class="fw500">${r.customer}</td><td>${r.qty}</td><td>${r.stockAfter??'—'}</td><td>${r.diptubeQty||0}</td><td class="mono">${fmt(r.transport||0)}</td><td class="mono">${fmt(handling)}</td><td style="color:var(--text3)">${r.notes||'—'}</td><td class="text-right mono fw500">${fmt(total)}</td><td>${actionBtns('outbounds',r.id)}</td></tr>`;
+    }).join(''):'<tr><td colspan="10"><div class="empty">No outbound records yet</div></td></tr>';
+  }
 
-    // Outbound customer select
-    const obSel = document.getElementById('ob-customer');
-    obSel.innerHTML = customers.length
-      ? customers.map(c => `<option value="${c}">${c} (${map[c]?.stock||0} in stock)</option>`).join('')
-      : '<option value="">No customers yet</option>';
+  function renderCustomerDropdowns(){
+    const customers=[...new Set(inbounds.map(r=>r.customer))];
+    const map=getCustomerMap();
+    document.getElementById('ob-customer').innerHTML=customers.length?customers.map(c=>`<option value="${c}">${c} (${map[c]?.stock||0} in stock)</option>`).join(''):'<option value="">No customers yet</option>';
     updateObStockInfo();
-
-    // Invoice customer select
-    const invSel = document.getElementById('inv-customer');
-    invSel.innerHTML = customers.length
-      ? ['<option value="">All customers</option>', ...customers.map(c=>`<option value="${c}">${c}</option>`)].join('')
-      : '<option value="">No customers yet</option>';
+    document.getElementById('inv-customer').innerHTML=['<option value="">All customers</option>',...customers.map(c=>`<option value="${c}">${c}</option>`)].join('');
   }
 
-  // Update outbound stock info
-  function updateObStockInfo() {
-    const map = getCustomerMap();
-    const c = document.getElementById('ob-customer').value;
-    const stock = map[c]?.stock || 0;
-    const el = document.getElementById('ob-stock-info');
-    el.textContent = c ? `${c} currently has ${stock} IBC(s) in stock.` : 'Select a customer to see available stock.';
-    el.style.background = stock > 0 ? 'var(--green-light)' : 'var(--amber-light)';
-    el.style.color = stock > 0 ? 'var(--green-text)' : 'var(--amber-text)';
+  function updateObStockInfo(){
+    const map=getCustomerMap();
+    const c=document.getElementById('ob-customer').value;
+    const stock=map[c]?.stock||0;
+    const el=document.getElementById('ob-stock-info');
+    el.textContent=c?`${c} currently has ${stock} IBC(s) in stock.`:'Select a customer to see available stock.';
+    el.style.background=c?(stock>0?'var(--green-light)':'var(--amber-light)'):'var(--surface2)';
+    el.style.color=c?(stock>0?'var(--green-text)':'var(--amber-text)'):'var(--text2)';
   }
 
-  // Render invoice month options
-  function renderInvoiceMonths() {
-    const months = new Set();
-    const now = new Date();
-    // Add current month always
+  function renderInvoiceMonths(){
+    const months=new Set();
+    const now=new Date();
     months.add(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`);
-    inbounds.forEach(r => months.add(r.date.slice(0,7)));
-    outbounds.forEach(r => months.add(r.date.slice(0,7)));
-    const sorted = [...months].sort((a,b) => b.localeCompare(a));
-    const sel = document.getElementById('inv-month');
-    sel.innerHTML = sorted.map(m => {
-      const [y,mo] = m.split('-');
-      const label = new Date(+y, +mo-1, 1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
-      return `<option value="${m}">${label}</option>`;
+    inbounds.forEach(r=>months.add(r.date.slice(0,7)));
+    outbounds.forEach(r=>months.add(r.date.slice(0,7)));
+    document.getElementById('inv-month').innerHTML=[...months].sort((a,b)=>b.localeCompare(a)).map(m=>{
+      const [y,mo]=m.split('-');
+      return `<option value="${m}">${new Date(+y,+mo-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'})}</option>`;
     }).join('');
   }
 
-  // Render invoice
-  window.renderInvoice = function() {
-    const ym = document.getElementById('inv-month').value;
-    const customer = document.getElementById('inv-customer').value;
-    if (!ym) return;
-
-    const [year, mo] = ym.split('-').map(Number);
-    const monthLabel = new Date(year, mo-1, 1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
-    const lastDay = new Date(year, mo, 0).getDate();
-    const periodEnd = `${ym}-${String(lastDay).padStart(2,'0')}`;
-
-    document.getElementById('inv-title').textContent = `Invoice — ${monthLabel}`;
-    document.getElementById('inv-meta').textContent = customer ? `Customer: ${customer}` : 'All customers';
-    document.getElementById('inv-period').textContent = `${new Date(year,mo-1,1).toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${new Date(year,mo-1,lastDay).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
-
-    const filterIbs = inbounds.filter(r => r.date.startsWith(ym) && (!customer || r.customer===customer));
-    const filterObs = outbounds.filter(r => r.date.startsWith(ym) && (!customer || r.customer===customer));
-
-    const ibQty = filterIbs.reduce((s,r)=>s+r.qty,0);
-    const ibHandling = ibQty * RATE.inbound;
-    const hazmatQty = filterIbs.filter(r=>r.hazmat==='class8').reduce((s,r)=>s+r.qty,0);
-    const hazmatCharge = hazmatQty * RATE.hazmat;
-    const dipQty = filterIbs.filter(r=>r.diptube==='yes').reduce((s,r)=>s+r.qty,0);
-    const dipCharge = dipQty * RATE.diptube;
-    const obQty = filterObs.reduce((s,r)=>s+r.qty,0);
-    const obHandling = obQty * RATE.outbound;
-    const obRuns = filterObs.length;
-    const transport = filterObs.reduce((s,r)=>s+(r.transport||0),0);
-
-    // Storage: calculate for the billing month
-    const cList = customer ? [customer] : [...new Set(inbounds.map(r=>r.customer))];
-    let storageFee = 0;
-    cList.forEach(c => {
-      const sf = calcStorageFee(c, periodEnd);
-      // Count only storage that accrued within or before this month
-      storageFee += sf.total;
-    });
-
-    const total = ibHandling + hazmatCharge + dipCharge + obHandling + transport + storageFee;
-
-    const lines = [
-      [1,'Inbound handling fee','per IBC',ibQty,fmt(RATE.inbound),ibHandling,'Mandatory'],
-      [2,'Outbound handling fee','per IBC',obQty,fmt(RATE.outbound),obHandling,'Mandatory'],
-      [3,'Hazmat surcharge (Class 8)','per IBC',hazmatQty,fmt(RATE.hazmat),hazmatCharge,'Mandatory'],
-      [4,'Storage fee','IBC / day','—',fmt(RATE.storage)+'/IBC/day',storageFee,'Mandatory'],
-      [5,'Transportation fee','per run',obRuns,'—',transport,'Mandatory'],
-      [6,'Diptube w/ QC Guard','per IBC',dipQty,fmt(RATE.diptube),dipCharge,'Optional'],
+  window.renderInvoice=function(){
+    const ym=document.getElementById('inv-month').value;
+    const customer=document.getElementById('inv-customer').value;
+    if(!ym) return;
+    const [year,mo]=ym.split('-').map(Number);
+    const monthLabel=new Date(year,mo-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    const lastDay=new Date(year,mo,0).getDate();
+    const periodEnd=`${ym}-${String(lastDay).padStart(2,'0')}`;
+    document.getElementById('inv-title').textContent=`Invoice — ${monthLabel}`;
+    document.getElementById('inv-meta').textContent=customer?`Customer: ${customer}`:'All customers';
+    document.getElementById('inv-period').textContent=`${new Date(year,mo-1,1).toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${new Date(year,mo-1,lastDay).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+    const fIbs=inbounds.filter(r=>r.date.startsWith(ym)&&(!customer||r.customer===customer));
+    const fObs=outbounds.filter(r=>r.date.startsWith(ym)&&(!customer||r.customer===customer));
+    const ibQty=fIbs.reduce((s,r)=>s+r.qty,0);
+    const hazQty=fIbs.filter(r=>r.hazmat==='class8').reduce((s,r)=>s+r.qty,0);
+    const obQty=fObs.reduce((s,r)=>s+r.qty,0);
+    const dipQty=fObs.reduce((s,r)=>s+(r.diptubeQty||0),0);
+    const ibH=ibQty*RATE.inbound, hazC=hazQty*RATE.hazmat;
+    const obH=obQty*RATE.outbound, trn=fObs.reduce((s,r)=>s+(r.transport||0),0);
+    const dipC=dipQty*RATE.diptube;
+    const cList=customer?[customer]:[...new Set(inbounds.map(r=>r.customer))];
+    const sto=cList.reduce((s,c)=>s+calcStorageFee(c,periodEnd).total,0);
+    const total=ibH+hazC+obH+trn+dipC+sto;
+    const lines=[
+      [1,'Inbound handling fee','per IBC',ibQty,fmt(RATE.inbound),ibH,'Mandatory'],
+      [2,'Outbound handling fee','per IBC',obQty,fmt(RATE.outbound),obH,'Mandatory'],
+      [3,'Hazmat surcharge (Class 8)','per IBC',hazQty,fmt(RATE.hazmat),hazC,'Mandatory'],
+      [4,'Storage fee','IBC / day','—',fmt(RATE.storage)+'/IBC/day',sto,'Mandatory'],
+      [5,'Transportation fee','per run',fObs.length,'—',trn,'Mandatory'],
+      [6,'Diptube w/ QC Guard','per IBC',dipQty,fmt(RATE.diptube),dipC,'Optional'],
     ];
+    document.getElementById('inv-lines').innerHTML=lines.map(l=>`<tr><td>${l[0]}</td><td>${l[1]}</td><td>${l[2]}</td><td>${l[3]}</td><td class="mono">${l[4]}</td><td class="text-right mono fw500">${fmt(l[5])}</td><td><span class="badge ${l[6]==='Mandatory'?'badge-mand':'badge-opt'}">${l[6]==='Mandatory'?'Mand.':'Opt.'}</span></td></tr>`).join('');
+    document.getElementById('inv-total').textContent=fmt(total);
+    const map=getCustomerMap();
+    const left=cList.reduce((s,c)=>s+(map[c]?.stock||0),0);
+    const note=document.getElementById('inv-note');
+    if(left>0){note.style.display='block';note.textContent=`Note: ${left} IBC(s) remain in storage as of end of ${monthLabel} and will continue to accrue $${RATE.storage}.00/IBC/day in the next billing period.`;}
+    else note.style.display='none';
+  };
 
-    document.getElementById('inv-lines').innerHTML = lines.map(l => `<tr>
-      <td>${l[0]}</td>
-      <td>${l[1]}</td>
-      <td>${l[2]}</td>
-      <td>${l[3]}</td>
-      <td class="mono">${l[4]}</td>
-      <td class="text-right mono fw500">${fmt(l[5])}</td>
-      <td><span class="badge ${l[6]==='Mandatory'?'badge-mand':'badge-opt'}">${l[6]==='Mandatory'?'Mand.':'Opt.'}</span></td>
-    </tr>`).join('');
+  window.registerInbound=async function(){
+    const customer=document.getElementById('ib-customer').value.trim();
+    const date=document.getElementById('ib-date').value;
+    const qty=parseInt(document.getElementById('ib-qty').value);
+    const hazmat=document.getElementById('ib-hazmat').value;
+    const notes=document.getElementById('ib-notes').value.trim();
+    if(!customer||!date||!qty||qty<1){alert('Please fill in customer, date, and quantity.');return;}
+    try{
+      await addDoc(collection(db,'inbounds'),{customer,date,qty,hazmat,notes,createdAt:Timestamp.now()});
+      ['ib-customer','ib-qty','ib-notes'].forEach(id=>document.getElementById(id).value='');
+      showAlert('ib-success');await loadAll();
+    }catch(e){console.error(e);showAlert('ib-error');}
+  };
 
-    document.getElementById('inv-total').textContent = fmt(total);
+  window.registerOutbound=async function(){
+    const customer=document.getElementById('ob-customer').value;
+    const date=document.getElementById('ob-date').value;
+    const qty=parseInt(document.getElementById('ob-qty').value);
+    const transport=parseFloat(document.getElementById('ob-transport').value)||0;
+    const diptubeQty=parseInt(document.getElementById('ob-diptube').value)||0;
+    const notes=document.getElementById('ob-notes').value.trim();
+    if(!customer||!date||!qty||qty<1){alert('Please fill in customer, date, and quantity.');return;}
+    const map=getCustomerMap();
+    const stock=map[customer]?.stock||0;
+    if(qty>stock){alert(`Insufficient stock. ${customer} only has ${stock} IBC(s) available.`);return;}
+    if(diptubeQty>qty){alert(`Diptube qty (${diptubeQty}) cannot exceed outbound qty (${qty}).`);return;}
+    try{
+      await addDoc(collection(db,'outbounds'),{customer,date,qty,transport,diptubeQty,notes,stockAfter:stock-qty,createdAt:Timestamp.now()});
+      ['ob-qty','ob-transport','ob-notes'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('ob-diptube').value='0';
+      showAlert('ob-success');await loadAll();
+    }catch(e){console.error(e);showAlert('ob-error');}
+  };
 
-    const map = getCustomerMap();
-    const stockRemaining = cList.reduce((s,c)=>s+(map[c]?.stock||0),0);
-    if (stockRemaining > 0) {
-      const noteEl = document.getElementById('inv-note');
-      noteEl.style.display = 'block';
-      noteEl.textContent = `Note: ${stockRemaining} IBC(s) remain in storage as of end of ${monthLabel} and will continue to accrue $${RATE.storage}.00/IBC/day in the next billing period.`;
+  window.openEdit=function(col,id){
+    if(col==='inbounds'){
+      const r=inbounds.find(x=>x.id===id); if(!r)return;
+      document.getElementById('edit-ib-id').value=id;
+      document.getElementById('edit-ib-customer').value=r.customer;
+      document.getElementById('edit-ib-date').value=r.date;
+      document.getElementById('edit-ib-qty').value=r.qty;
+      document.getElementById('edit-ib-hazmat').value=r.hazmat||'class8';
+      document.getElementById('edit-ib-notes').value=r.notes||'';
+      document.getElementById('modal-ib').classList.add('open');
     } else {
-      document.getElementById('inv-note').style.display = 'none';
+      const r=outbounds.find(x=>x.id===id); if(!r)return;
+      document.getElementById('edit-ob-id').value=id;
+      document.getElementById('edit-ob-customer').value=r.customer;
+      document.getElementById('edit-ob-date').value=r.date;
+      document.getElementById('edit-ob-qty').value=r.qty;
+      document.getElementById('edit-ob-transport').value=r.transport||0;
+      document.getElementById('edit-ob-diptube').value=r.diptubeQty||0;
+      document.getElementById('edit-ob-notes').value=r.notes||'';
+      document.getElementById('modal-ob').classList.add('open');
     }
   };
 
-  // Register inbound
-  window.registerInbound = async function() {
-    const customer = document.getElementById('ib-customer').value.trim();
-    const date = document.getElementById('ib-date').value;
-    const qty = parseInt(document.getElementById('ib-qty').value);
-    const hazmat = document.getElementById('ib-hazmat').value;
-    const diptube = document.getElementById('ib-diptube').value;
-    const notes = document.getElementById('ib-notes').value.trim();
-
-    if (!customer || !date || !qty || qty < 1) { alert('Please fill in customer, date, and quantity.'); return; }
-
-    try {
-      await addDoc(collection(db,'inbounds'), { customer, date, qty, hazmat, diptube, notes, createdAt: Timestamp.now() });
-      document.getElementById('ib-customer').value = '';
-      document.getElementById('ib-qty').value = '';
-      document.getElementById('ib-notes').value = '';
-      showAlert('ib-success');
-      await loadAll();
-    } catch(e) {
-      console.error(e);
-      showAlert('ib-error');
-    }
+  window.saveEditInbound=async function(){
+    const id=document.getElementById('edit-ib-id').value;
+    const customer=document.getElementById('edit-ib-customer').value.trim();
+    const date=document.getElementById('edit-ib-date').value;
+    const qty=parseInt(document.getElementById('edit-ib-qty').value);
+    const hazmat=document.getElementById('edit-ib-hazmat').value;
+    const notes=document.getElementById('edit-ib-notes').value.trim();
+    if(!customer||!date||!qty){alert('Please fill all required fields.');return;}
+    try{await updateDoc(doc(db,'inbounds',id),{customer,date,qty,hazmat,notes});closeModal('modal-ib');await loadAll();}
+    catch(e){console.error(e);alert('Error saving. Please try again.');}
   };
 
-  // Register outbound
-  window.registerOutbound = async function() {
-    const customer = document.getElementById('ob-customer').value;
-    const date = document.getElementById('ob-date').value;
-    const qty = parseInt(document.getElementById('ob-qty').value);
-    const transport = parseFloat(document.getElementById('ob-transport').value) || 0;
-    const notes = document.getElementById('ob-notes').value.trim();
-
-    if (!customer || !date || !qty || qty < 1) { alert('Please fill in customer, date, and quantity.'); return; }
-
-    const map = getCustomerMap();
-    const stock = map[customer]?.stock || 0;
-    if (qty > stock) { alert(`Insufficient stock. ${customer} only has ${stock} IBC(s) available.`); return; }
-
-    try {
-      const stockAfter = stock - qty;
-      await addDoc(collection(db,'outbounds'), { customer, date, qty, transport, notes, stockAfter, createdAt: Timestamp.now() });
-      document.getElementById('ob-qty').value = '';
-      document.getElementById('ob-transport').value = '';
-      document.getElementById('ob-notes').value = '';
-      showAlert('ob-success');
-      await loadAll();
-    } catch(e) {
-      console.error(e);
-      showAlert('ob-error');
-    }
+  window.saveEditOutbound=async function(){
+    const id=document.getElementById('edit-ob-id').value;
+    const r=outbounds.find(x=>x.id===id);
+    const date=document.getElementById('edit-ob-date').value;
+    const qty=parseInt(document.getElementById('edit-ob-qty').value);
+    const transport=parseFloat(document.getElementById('edit-ob-transport').value)||0;
+    const diptubeQty=parseInt(document.getElementById('edit-ob-diptube').value)||0;
+    const notes=document.getElementById('edit-ob-notes').value.trim();
+    if(!date||!qty){alert('Please fill all required fields.');return;}
+    if(diptubeQty>qty){alert('Diptube qty cannot exceed IBC qty.');return;}
+    try{
+      const map=getCustomerMap();
+      const avail=(map[r.customer]?.stock||0)+r.qty;
+      if(qty>avail){alert(`Insufficient stock. Max available: ${avail}`);return;}
+      await updateDoc(doc(db,'outbounds',id),{date,qty,transport,diptubeQty,notes,stockAfter:avail-qty});
+      closeModal('modal-ob');await loadAll();
+    }catch(e){console.error(e);alert('Error saving. Please try again.');}
   };
 
-  // Nav
-  window.showPage = function(id, el) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  window.deleteRecord=async function(col,id){
+    if(!confirm('Delete this record? This cannot be undone.'))return;
+    try{await deleteDoc(doc(db,col,id));await loadAll();}
+    catch(e){console.error(e);alert('Error deleting record.');}
+  };
+
+  window.showPage=function(id,el){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     document.getElementById('page-'+id).classList.add('active');
     el.classList.add('active');
-    if (id==='invoice') renderInvoice();
+    if(id==='invoice')renderInvoice();
   };
 
-  // Render all
-  function renderAll() {
-    renderDashboard();
-    renderInventory();
-    renderInboundHistory();
-    renderOutboundHistory();
-    renderCustomerDropdowns();
-    renderInvoiceMonths();
-    renderInvoice();
-  }
+  function renderAll(){renderDashboard();renderInventory();renderInboundHistory();renderOutboundHistory();renderCustomerDropdowns();renderInvoiceMonths();renderInvoice();}
 
-  // Init defaults
-  document.getElementById('ib-date').value = today();
-  document.getElementById('ob-date').value = today();
-  document.getElementById('ob-customer').addEventListener('change', updateObStockInfo);
-
-  // Load
+  document.getElementById('ib-date').value=today();
+  document.getElementById('ob-date').value=today();
+  document.getElementById('ob-customer').addEventListener('change',updateObStockInfo);
   loadAll();
 </script>
 </body>
