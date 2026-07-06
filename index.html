@@ -502,7 +502,9 @@
   }
 
   // Storage fee: splits periods at rate-change boundaries
-  function calcStorageFee(customer, untilDate){
+  // sinceDate (optional): if provided, clips/excludes periods to only the [sinceDate, untilDate] window,
+  // so that periods already closed out (fully outbounded) before sinceDate are NOT re-billed on later invoices.
+  function calcStorageFee(customer, untilDate, sinceDate){
     const until=untilDate||today();
     const ibRecs=inbounds.filter(r=>r.customer===customer).sort((a,b)=>a.date.localeCompare(b.date));
     const obRecs=outbounds.filter(r=>r.customer===customer).sort((a,b)=>a.date.localeCompare(b.date));
@@ -525,10 +527,15 @@
       if(stock<=0) continue;
       const endDate=i+1<allDates.length?allDates[i+1]:until;
       const end=endDate<=until?endDate:until;
-      const days=Math.max(0,Math.round((new Date(end)-new Date(startDate))/86400000));
-      if(days>0&&startDate<until){
+      if(end<=startDate) continue;
+      // Skip periods that already closed out before this billing window started
+      if(sinceDate&&end<=sinceDate) continue;
+      // Clip the period start to the billing window so only in-window days are charged
+      const clipStart=(sinceDate&&startDate<sinceDate)?sinceDate:startDate;
+      const days=Math.max(0,Math.round((new Date(end)-new Date(clipStart))/86400000));
+      if(days>0&&clipStart<until){
         const rate=getRateForDate(startDate);
-        periods.push({start:startDate,end,qty:stock,days,ratePerDay:rate.storage,sub:stock*days*rate.storage});
+        periods.push({start:clipStart,end,qty:stock,days,ratePerDay:rate.storage,sub:stock*days*rate.storage});
       }
     }
     return {total:periods.reduce((s,p)=>s+p.sub,0),periods};
@@ -658,6 +665,7 @@
     const monthLabel=new Date(year,mo-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
     const lastDay=new Date(year,mo,0).getDate();
     const periodEnd=`${ym}-${String(lastDay).padStart(2,'0')}`;
+    const periodStart=`${ym}-01`;
     document.getElementById('inv-title').textContent=`Invoice — ${monthLabel}`;
     document.getElementById('inv-meta').textContent=customer?`Customer: ${customer}`:'All customers';
     document.getElementById('inv-period').textContent=`${new Date(year,mo-1,1).toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${new Date(year,mo-1,lastDay).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
@@ -674,7 +682,7 @@
     const dipQty=fObs.reduce((s,r)=>s+(r.diptubeQty||0),0);
     const dipC=fObs.reduce((s,r)=>{ const rt=getRateForDate(r.date); return s+(r.diptubeQty||0)*rt.diptube; },0);
     const cList=customer?[customer]:[...new Set(inbounds.map(r=>r.customer))];
-    const sto=cList.reduce((s,c)=>s+calcStorageFee(c,periodEnd).total,0);
+    const sto=cList.reduce((s,c)=>s+calcStorageFee(c,periodEnd,periodStart).total,0);
     const total=ibH+hazC+obH+trn+dipC+sto;
     const cr=getCurrentRates();
     const lines=[
@@ -694,7 +702,7 @@
     else note.style.display='none';
     // Storage breakdown
     let allPeriods=[];
-    cList.forEach(c=>{ calcStorageFee(c,periodEnd).periods.forEach(p=>allPeriods.push({...p,customer:c})); });
+    cList.forEach(c=>{ calcStorageFee(c,periodEnd,periodStart).periods.forEach(p=>allPeriods.push({...p,customer:c})); });
     const bkEl=document.getElementById('inv-storage-breakdown');
     if(allPeriods.length){
       bkEl.style.display='block';
