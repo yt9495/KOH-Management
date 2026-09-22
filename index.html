@@ -81,19 +81,38 @@
   .modal-title{font-size:16px;font-weight:600;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
   .modal-close{cursor:pointer;color:var(--text3);font-size:22px;line-height:1;background:none;border:none;padding:0 4px}
   .modal-close:hover{color:var(--text)}
-  /* PIN modal */
-  .pin-modal{background:var(--surface);border-radius:var(--radius);padding:32px;width:320px;text-align:center}
-  .pin-title{font-size:16px;font-weight:600;margin-bottom:6px}
-  .pin-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
-  .pin-input{font-size:24px;font-family:'DM Mono',monospace;text-align:center;letter-spacing:8px;width:100%;margin-bottom:12px;padding:12px}
-  .pin-error{font-size:12px;color:var(--red);margin-top:6px;display:none}
   /* Rate card */
   .rate-current{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
   .rate-card{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;text-align:center}
   .rate-card-label{font-size:11px;color:var(--text3);margin-bottom:4px}
   .rate-card-val{font-size:18px;font-weight:600;font-family:'DM Mono',monospace;color:var(--blue)}
   .rate-card-date{font-size:10px;color:var(--text3);margin-top:2px}
-  @media print{.sidebar,.btn-row,.nav-item,.page-header button,#print-btn,.modal-overlay{display:none!important}.main{padding:0}.app{display:block;height:auto}}
+  /* Auth */
+  .auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:2000}
+  .auth-screen.hidden{display:none}
+  .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;width:360px;max-width:92vw}
+  .auth-title{font-size:18px;font-weight:600;margin:12px 0 4px}
+  .auth-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+  .auth-box .form-group{margin-bottom:12px}
+  .auth-msg{font-size:12px;margin-top:10px;min-height:16px}
+  .auth-msg.err{color:var(--red)}.auth-msg.ok{color:var(--green)}
+  .link-btn{background:none;border:none;color:var(--blue);font-size:12px;cursor:pointer;padding:0;font-family:inherit}
+  .user-chip{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .user-avatar{width:28px;height:28px;border-radius:50%;background:var(--blue-light);color:var(--blue-text);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;flex-shrink:0}
+  .user-name{font-size:12px;font-weight:600;color:var(--text)}
+  .user-role{font-size:10px;color:var(--text3)}
+  .meta{font-size:11px;color:var(--text3);line-height:1.4;white-space:nowrap}
+  .meta b{color:var(--text2);font-weight:500}
+  .badge-create{background:var(--green-light);color:var(--green-text)}
+  .badge-update{background:var(--blue-light);color:var(--blue-text)}
+  .badge-delete{background:var(--red-light);color:var(--red-text)}
+  .badge-restore{background:var(--purple-light);color:var(--purple-text)}
+  .chg{font-size:12px;line-height:1.5}
+  .chg .f{color:var(--text3)}.chg .o{color:var(--red-text);text-decoration:line-through}.chg .n{color:var(--green-text);font-weight:500}
+  .filters{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:12px}
+  .btn-sm{padding:4px 8px;font-size:11px}
+  body:not(.is-admin) .admin-only{display:none!important}
+  @media print{.sidebar,.btn-row,.nav-item,.auth-screen,.page-header button,#print-btn,.modal-overlay{display:none!important}.main{padding:0}.app{display:block;height:auto}}
 </style>
 </head>
 <body>
@@ -124,12 +143,20 @@
       <div class="nav-item" onclick="showPage('invoice',this)">
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Monthly Invoice
       </div>
-      <div class="nav-section">Admin</div>
-      <div class="nav-item" onclick="requestSettings(this)">
+      <div class="nav-section">Audit</div>
+      <div class="nav-item" onclick="showPage('history',this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>Change History
+      </div>
+      <div class="nav-section admin-only">Admin</div>
+      <div class="nav-item admin-only" id="nav-settings" onclick="showPage('settings',this)">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
       </div>
     </nav>
-    <div class="sidebar-footer">KOH Management v1.2</div>
+    <div class="sidebar-footer">
+      <div class="user-chip"><div class="user-avatar" id="me-avatar">?</div><div style="min-width:0"><div class="user-name" id="me-name">—</div><div class="user-role" id="me-role">—</div></div></div>
+      <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center" onclick="doSignOut()">Sign out</button>
+      <div style="margin-top:8px">KOH Management v1.3</div>
+    </div>
   </div>
 
   <div class="main">
@@ -214,8 +241,8 @@
       <div class="card">
         <div class="card-title">Inbound history</div>
         <div class="tbl-wrap mt8">
-          <table><thead><tr><th>Date</th><th>Customer</th><th>IBC qty</th><th>Hazmat</th><th>Notes</th><th class="text-right">Charges</th><th>Actions</th></tr></thead>
-          <tbody id="ib-history"><tr><td colspan="7"><div class="empty">No inbound records yet</div></td></tr></tbody></table>
+          <table><thead><tr><th>Date</th><th>Customer</th><th>IBC qty</th><th>Hazmat</th><th>Notes</th><th class="text-right">Charges</th><th>Entered / Edited</th><th>Actions</th></tr></thead>
+          <tbody id="ib-history"><tr><td colspan="8"><div class="empty">No inbound records yet</div></td></tr></tbody></table>
         </div>
       </div>
     </div>
@@ -249,8 +276,8 @@
       <div class="card">
         <div class="card-title">Outbound history</div>
         <div class="tbl-wrap mt8">
-          <table><thead><tr><th>Date</th><th>Customer</th><th>IBC qty</th><th>Stock after</th><th>Diptube qty</th><th>Transport</th><th>Handling</th><th>Notes</th><th class="text-right">Total</th><th>Actions</th></tr></thead>
-          <tbody id="ob-history"><tr><td colspan="10"><div class="empty">No outbound records yet</div></td></tr></tbody></table>
+          <table><thead><tr><th>Date</th><th>Customer</th><th>IBC qty</th><th>Stock after</th><th>Diptube qty</th><th>Transport</th><th>Handling</th><th>Notes</th><th class="text-right">Total</th><th>Entered / Edited</th><th>Actions</th></tr></thead>
+          <tbody id="ob-history"><tr><td colspan="11"><div class="empty">No outbound records yet</div></td></tr></tbody></table>
         </div>
       </div>
     </div>
@@ -293,8 +320,7 @@
     <!-- SETTINGS -->
     <div class="page" id="page-settings">
       <div class="page-header">
-        <div><div class="page-title">Settings</div><div class="page-sub">Manage rate schedules — admin only</div></div>
-        <button class="btn btn-outline" onclick="lockSettings()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Lock settings</button>
+        <div><div class="page-title">Settings</div><div class="page-sub">Manage rate schedules and user accounts — admin only</div></div>
       </div>
       <div class="alert alert-success" id="rate-success">New rate saved successfully.</div>
       <div class="alert alert-error" id="rate-error">Error saving rate. Please try again.</div>
@@ -330,9 +356,51 @@
         <div class="card-title">Rate history</div>
         <div class="tbl-wrap mt8">
           <table>
-            <thead><tr><th>Effective date</th><th>Inbound</th><th>Outbound</th><th>Hazmat</th><th>Storage/day</th><th>Diptube</th><th>Notes</th><th>Actions</th></tr></thead>
-            <tbody id="rate-history-table"><tr><td colspan="8"><div class="empty">No rate history yet</div></td></tr></tbody>
+            <thead><tr><th>Effective date</th><th>Inbound</th><th>Outbound</th><th>Hazmat</th><th>Storage/day</th><th>Diptube</th><th>Notes</th><th>Entered</th><th>Actions</th></tr></thead>
+            <tbody id="rate-history-table"><tr><td colspan="9"><div class="empty">No rate history yet</div></td></tr></tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Users -->
+      <div class="card">
+        <div class="card-title">User accounts</div>
+        <div class="alert alert-success" id="user-success"></div>
+        <div class="alert alert-error" id="user-error"></div>
+        <div class="form-grid5" style="grid-template-columns:1.2fr 1.5fr 1.2fr .9fr auto;align-items:end">
+          <div class="form-group"><div class="form-label">Name</div><input id="nu-name" type="text" placeholder="e.g. Hong Gildong"></div>
+          <div class="form-group"><div class="form-label">Email</div><input id="nu-email" type="email" placeholder="name@company.com"></div>
+          <div class="form-group"><div class="form-label">Temporary password</div><input id="nu-pass" type="text" placeholder="min. 6 characters"></div>
+          <div class="form-group"><div class="form-label">Role</div><select id="nu-role"><option value="user">User</option><option value="admin">Admin</option></select></div>
+          <div class="form-group"><button class="btn btn-primary" onclick="createUserAccount()">Add user</button></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Share the temporary password with the user. They can change it any time via "Forgot password?" on the login screen. People who sign up on their own appear here as <b>Pending</b> until you activate them.</div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last login</th><th>Actions</th></tr></thead>
+          <tbody id="users-table"><tr><td colspan="6"><div class="empty">Loading…</div></td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <div><div class="page-title">Change history</div><div class="page-sub">Who entered, edited, deleted or restored each record — and when</div></div>
+        <div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="loadHistory()">Refresh</button><button class="btn btn-outline" onclick="exportHistoryCsv()">Export CSV</button></div>
+      </div>
+      <div class="card">
+        <div class="filters">
+          <div class="form-group"><div class="form-label">Type</div><select id="hf-col" onchange="renderHistory()"><option value="">All</option><option value="inbounds">Inbound</option><option value="outbounds">Outbound</option><option value="rates">Rates</option><option value="users">Users</option></select></div>
+          <div class="form-group"><div class="form-label">Action</div><select id="hf-action" onchange="renderHistory()"><option value="">All</option><option value="create">Created</option><option value="update">Edited</option><option value="delete">Deleted</option><option value="restore">Restored</option></select></div>
+          <div class="form-group"><div class="form-label">User</div><select id="hf-user" onchange="renderHistory()"><option value="">All</option></select></div>
+          <div class="form-group"><div class="form-label">From</div><input id="hf-from" type="date" onchange="renderHistory()"></div>
+          <div class="form-group"><div class="form-label">To</div><input id="hf-to" type="date" onchange="renderHistory()"></div>
+          <div class="form-group"><div class="form-label">Search</div><input id="hf-q" type="text" placeholder="Customer, note…" oninput="renderHistory()"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px" id="hist-count"></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>When</th><th>User</th><th>Action</th><th>Type</th><th>Record</th><th>Changes</th><th></th></tr></thead>
+          <tbody id="hist-table"><tr><td colspan="7"><div class="empty">Loading…</div></td></tr></tbody></table>
         </div>
       </div>
     </div>
@@ -340,17 +408,44 @@
   </div>
 </div>
 
-<!-- PIN Modal -->
-<div class="modal-overlay" id="modal-pin">
-  <div class="pin-modal">
-    <div style="font-size:28px;margin-bottom:12px">🔒</div>
-    <div class="pin-title">Admin access required</div>
-    <div class="pin-sub">Enter your 4-digit PIN to access Settings</div>
-    <input class="pin-input" id="pin-input" type="password" maxlength="4" placeholder="••••" oninput="checkPin()">
-    <div class="pin-error" id="pin-error">Incorrect PIN. Please try again.</div>
-    <div class="btn-row" style="justify-content:center;margin-top:16px">
-      <button class="btn btn-outline" onclick="closeModal('modal-pin')">Cancel</button>
-    </div>
+<!-- Login -->
+<div class="auth-screen" id="auth-login">
+  <div class="auth-box">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>
+    <div class="auth-title">KOH Manager</div>
+    <div class="auth-sub">Sign in with your company account</div>
+    <div class="form-group"><div class="form-label">Email</div><input id="login-email" type="email" autocomplete="username"></div>
+    <div class="form-group"><div class="form-label">Password</div><input id="login-pass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doSignIn()"></div>
+    <button class="btn btn-primary" id="login-btn" style="width:100%;justify-content:center;margin-top:4px" onclick="doSignIn()">Sign in</button>
+    <div style="display:flex;justify-content:space-between;margin-top:12px"><button class="link-btn" onclick="doResetPassword()">Forgot password?</button></div>
+    <div class="auth-msg" id="login-msg"></div>
+  </div>
+</div>
+
+<!-- First login: name / pending -->
+<div class="auth-screen hidden" id="auth-profile">
+  <div class="auth-box">
+    <div class="auth-title">Set up your profile</div>
+    <div class="auth-sub">This name is shown in the change history next to everything you enter or edit.</div>
+    <div class="form-group"><div class="form-label">Your name</div><input id="profile-name" type="text" placeholder="e.g. Hong Gildong"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveProfileName()">Continue</button>
+    <div class="auth-msg" id="profile-msg"></div>
+  </div>
+</div>
+<div class="auth-screen hidden" id="auth-pending">
+  <div class="auth-box" style="text-align:center">
+    <div style="font-size:28px">⏳</div>
+    <div class="auth-title" id="pending-title">Waiting for approval</div>
+    <div class="auth-sub" id="pending-sub">Your account has been created but must be activated by an administrator before you can use the app.</div>
+    <div style="display:flex;gap:8px;justify-content:center"><button class="btn btn-outline" onclick="location.reload()">Check again</button><button class="btn btn-outline" onclick="doSignOut()">Sign out</button></div>
+  </div>
+</div>
+
+<!-- Record log modal -->
+<div class="modal-overlay" id="modal-log">
+  <div class="modal" style="width:760px">
+    <div class="modal-title"><span id="log-title">Record history</span> <button class="modal-close" onclick="closeModal('modal-log')">×</button></div>
+    <div class="tbl-wrap"><table><thead><tr><th>When</th><th>User</th><th>Action</th><th>Changes</th></tr></thead><tbody id="log-table"></tbody></table></div>
   </div>
 </div>
 
@@ -400,7 +495,8 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, getDoc, setDoc, updateDoc, doc, query, orderBy, where, limit, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDTmxCLFaLw5ybxdESwBoKWeAYSmT3_ZRM",
@@ -413,17 +509,91 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
+  // Secondary app instance: lets an admin create accounts without being signed out
+  const adminApp = initializeApp(firebaseConfig, 'admin-create');
+  const adminAuth = getAuth(adminApp);
 
   // Default base rates (used if no rate history exists)
   const DEFAULT_RATES = { inbound:8, outbound:10, hazmat:3, storage:1, diptube:105 };
 
   let inbounds=[], outbounds=[], rateHistory=[];
-  let settingsUnlocked = false;
+  let currentUser=null, profile=null, isAdmin=false;
+  let auditLogs=[], usersList=[];
 
   const fmt = n => '$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
   const fmtDate = d => new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  const today = () => new Date().toISOString().slice(0,10);
-  const showAlert = (id,dur=3000) => { const el=document.getElementById(id); el.style.display='block'; setTimeout(()=>el.style.display='none',dur); };
+  const today = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+  const showAlert = (id,dur=3000,msg) => { const el=document.getElementById(id); if(msg) el.textContent=msg; el.style.display='block'; setTimeout(()=>el.style.display='none',dur); };
+  const esc = v => String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const tsDate = t => t?.toDate ? t.toDate() : (t instanceof Date ? t : null);
+  const fmtTs = t => { const d=tsDate(t); return d ? d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; };
+  const fmtTsShort = t => { const d=tsDate(t); return d ? d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''; };
+
+  // ===== Audit trail =====
+  const COL_LABEL = { inbounds:'Inbound', outbounds:'Outbound', rates:'Rates', users:'User' };
+  const ACTION_LABEL = { create:'Created', update:'Edited', delete:'Deleted', restore:'Restored' };
+  const TRACK = {
+    inbounds:['customer','date','qty','hazmat','notes'],
+    outbounds:['customer','date','qty','transport','diptubeQty','notes','stockAfter'],
+    rates:['date','inbound','outbound','hazmat','storage','diptube','notes'],
+    users:['name','email','role','active']
+  };
+  const FIELD_LABEL = { customer:'Customer', date:'Date', qty:'IBC qty', hazmat:'Hazmat', notes:'Notes', transport:'Transport', diptubeQty:'Diptube qty', stockAfter:'Stock after', inbound:'Inbound rate', outbound:'Outbound rate', storage:'Storage rate', diptube:'Diptube rate', name:'Name', email:'Email', role:'Role', active:'Active' };
+  const MONEY_FIELDS = ['transport','inbound','outbound','storage','diptube'];
+  function fmtVal(col,k,v){
+    if(v===null||v===undefined||v==='') return '—';
+    if(col==='rates'&&k!=='date'&&k!=='notes') return fmt(v);
+    if(k==='hazmat') return v==='class8'?'Class 8':'None';
+    if(k==='active') return v?'Yes':'No';
+    if(MONEY_FIELDS.includes(k)) return fmt(v);
+    return String(v);
+  }
+  function pick(col,obj){ if(!obj) return null; const o={}; TRACK[col].forEach(k=>{ if(obj[k]!==undefined) o[k]=obj[k]; }); return o; }
+  function diffFields(col,before,after){
+    return TRACK[col].filter(k=>JSON.stringify(before?.[k]??null)!==JSON.stringify(after?.[k]??null))
+      .map(k=>({field:k,from:before?.[k]??null,to:after?.[k]??null}));
+  }
+  function summarize(col,r){
+    if(!r) return '';
+    if(col==='inbounds'||col==='outbounds') return `${r.customer} · ${r.date} · ${r.qty} IBC`;
+    if(col==='rates') return `Rate schedule effective ${r.date}`;
+    if(col==='users') return `${r.name||''} (${r.email||''})`;
+    return '';
+  }
+  const actor = () => ({ uid:currentUser.uid, email:currentUser.email||'', name:profile?.name||currentUser.email||'' });
+  function auditEntry(action,col,docId,before,after){
+    return { action, collection:col, docId, summary:summarize(col,after||before),
+      before:pick(col,before), after:pick(col,after),
+      changes: action==='update'?diffFields(col,before,after):[],
+      by:actor(), at:serverTimestamp() };
+  }
+  // Writes a record change and its audit entry atomically
+  async function writeWithAudit(action,col,id,data,before,after){
+    const batch=writeBatch(db);
+    const ref=id?doc(db,col,id):doc(collection(db,col));
+    if(action==='create') batch.set(ref,data); else batch.update(ref,data);
+    batch.set(doc(collection(db,'auditLogs')), auditEntry(action,col,ref.id,before,after));
+    await batch.commit();
+    return ref.id;
+  }
+  const stampCreate = () => ({ createdBy:actor(), createdAt:serverTimestamp(), updatedBy:actor(), updatedAt:serverTimestamp(), deleted:false });
+  const stampUpdate = () => ({ updatedBy:actor(), updatedAt:serverTimestamp() });
+  function metaCell(r){
+    const c = r.createdBy ? `<div><b>${esc(r.createdBy.name)}</b> ${fmtTsShort(r.createdAt)}</div>` : `<div>${r.createdAt?fmtTsShort(r.createdAt)+' · ':''}<i>unknown</i></div>`;
+    const edited = r.updatedBy && r.updatedAt && r.createdAt && tsDate(r.updatedAt)?.getTime()!==tsDate(r.createdAt)?.getTime();
+    const u = edited ? `<div>Edited: <b>${esc(r.updatedBy.name)}</b> ${fmtTsShort(r.updatedAt)}</div>` : '';
+    return `<div class="meta">${c}${u}</div>`;
+  }
+  function changesHtml(l){
+    if(l.action==='update'){
+      if(!l.changes?.length) return '<span class="meta">No field changes</span>';
+      return `<div class="chg">${l.changes.map(c=>`<div><span class="f">${esc(FIELD_LABEL[c.field]||c.field)}:</span> <span class="o">${esc(fmtVal(l.collection,c.field,c.from))}</span> → <span class="n">${esc(fmtVal(l.collection,c.field,c.to))}</span></div>`).join('')}</div>`;
+    }
+    const src = l.action==='create'?l.after:(l.before||l.after);
+    if(!src) return '';
+    return `<div class="chg" style="color:var(--text2)">${TRACK[l.collection].filter(k=>src[k]!==undefined&&src[k]!=='').map(k=>`${esc(FIELD_LABEL[k]||k)}: ${esc(fmtVal(l.collection,k,src[k]))}`).join(' · ')}</div>`;
+  }
 
   // Get applicable rate for a given date
   function getRateForDate(dateStr) {
@@ -443,41 +613,76 @@
 
   window.closeModal = id => document.getElementById(id).classList.remove('open');
 
-  // PIN handling
-  const ADMIN_PIN = '1234';
-  window.requestSettings = function(el) {
-    if(settingsUnlocked) {
-      showPage('settings', el);
-      return;
-    }
-    document.getElementById('pin-input').value='';
-    document.getElementById('pin-error').style.display='none';
-    document.getElementById('modal-pin').classList.add('open');
-    document.getElementById('modal-pin').dataset.navEl = '';
-    window._pendingSettingsEl = el;
-    setTimeout(()=>document.getElementById('pin-input').focus(),100);
+  // ===== Authentication =====
+  const AUTH_ERR = {
+    'auth/invalid-credential':'Incorrect email or password.', 'auth/wrong-password':'Incorrect email or password.', 'auth/user-not-found':'Incorrect email or password.', 'auth/invalid-email':'Invalid email address.',
+    'auth/user-disabled':'This account has been disabled.', 'auth/too-many-requests':'Too many attempts. Please wait and try again.',
+    'auth/missing-password':'Please enter your password.', 'auth/email-already-in-use':'An account with this email already exists.',
+    'auth/weak-password':'Password must be at least 6 characters.', 'auth/network-request-failed':'Network error. Check your connection.'
+  };
+  const authMsg = e => AUTH_ERR[e?.code] || (e?.message||'Something went wrong.');
+  function screen(id){ ['auth-login','auth-profile','auth-pending'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id)); }
+  function setLoginMsg(t,ok){ const el=document.getElementById('login-msg'); el.textContent=t||''; el.className='auth-msg '+(ok?'ok':'err'); }
+
+  window.doSignIn = async function(){
+    const email=document.getElementById('login-email').value.trim();
+    const pass=document.getElementById('login-pass').value;
+    if(!email||!pass){ setLoginMsg('Enter your email and password.'); return; }
+    const btn=document.getElementById('login-btn'); btn.disabled=true; btn.textContent='Signing in…';
+    try{ await signInWithEmailAndPassword(auth,email,pass); setLoginMsg(''); }
+    catch(e){ setLoginMsg(authMsg(e)); }
+    finally{ btn.disabled=false; btn.textContent='Sign in'; }
+  };
+  window.doResetPassword = async function(){
+    const email=document.getElementById('login-email').value.trim();
+    if(!email){ setLoginMsg('Enter your email above first, then click "Forgot password?".'); return; }
+    try{ await sendPasswordResetEmail(auth,email); setLoginMsg('Password reset email sent. Check your inbox (and spam folder).',true); }
+    catch(e){ setLoginMsg(authMsg(e)); }
+  };
+  window.doSignOut = async function(){ await signOut(auth); location.reload(); };
+
+  window.saveProfileName = async function(){
+    const name=document.getElementById('profile-name').value.trim();
+    const msg=document.getElementById('profile-msg');
+    if(!name){ msg.textContent='Please enter your name.'; msg.className='auth-msg err'; return; }
+    try{
+      const data={ name, email:currentUser.email, role:'user', active:false, createdAt:serverTimestamp() };
+      const batch=writeBatch(db);
+      batch.set(doc(db,'users',currentUser.uid), data);
+      profile={name};
+      batch.set(doc(collection(db,'auditLogs')), auditEntry('create','users',currentUser.uid,null,data));
+      await batch.commit();
+      await startSession(currentUser);
+    }catch(e){ console.error(e); msg.textContent='Could not save profile: '+(e.message||e); msg.className='auth-msg err'; }
   };
 
-  window.checkPin = function() {
-    const val = document.getElementById('pin-input').value;
-    if(val.length === 4) {
-      if(val === ADMIN_PIN) {
-        settingsUnlocked = true;
-        closeModal('modal-pin');
-        showPage('settings', window._pendingSettingsEl);
-        renderSettings();
-      } else {
-        document.getElementById('pin-error').style.display='block';
-        document.getElementById('pin-input').value='';
-      }
+  async function startSession(user){
+    const snap=await getDoc(doc(db,'users',user.uid));
+    if(!snap.exists()){ screen('auth-profile'); document.getElementById('profile-name').focus(); return; }
+    profile=snap.data();
+    if(profile.active!==true){
+      document.getElementById('pending-title').textContent = profile.deactivatedAt ? 'Account deactivated' : 'Waiting for approval';
+      document.getElementById('pending-sub').textContent = profile.deactivatedAt
+        ? 'Your access has been turned off by an administrator.'
+        : 'Your account has been created but must be activated by an administrator before you can use the app.';
+      screen('auth-pending'); return;
     }
-  };
+    isAdmin = profile.role==='admin';
+    document.body.classList.toggle('is-admin',isAdmin);
+    document.getElementById('me-name').textContent=profile.name||user.email;
+    document.getElementById('me-role').textContent=(isAdmin?'Admin':'User')+' · '+user.email;
+    document.getElementById('me-avatar').textContent=(profile.name||user.email||'?').trim().charAt(0).toUpperCase();
+    updateDoc(doc(db,'users',user.uid),{lastLoginAt:serverTimestamp()}).catch(()=>{});
+    screen(null);
+    await loadAll();
+  }
 
-  window.lockSettings = function() {
-    settingsUnlocked = false;
-    showPage('dashboard', document.querySelector('.nav-item'));
-    document.querySelector('.nav-item').classList.add('active');
-  };
+  onAuthStateChanged(auth, async user=>{
+    currentUser=user;
+    if(!user){ document.body.classList.remove('is-admin'); screen('auth-login'); return; }
+    try{ await startSession(user); }
+    catch(e){ console.error(e); screen('auth-login'); setLoginMsg('Could not load your profile: '+(e.message||e)); }
+  });
 
   async function loadAll(){
     try {
@@ -486,9 +691,10 @@
         getDocs(query(collection(db,'outbounds'),orderBy('date'))),
         getDocs(query(collection(db,'rates'),orderBy('date')))
       ]);
-      inbounds = ibSnap.docs.map(d=>({id:d.id,...d.data()}));
-      outbounds = obSnap.docs.map(d=>({id:d.id,...d.data()}));
-      rateHistory = rateSnap.docs.map(d=>({id:d.id,...d.data()}));
+      const live = snap => snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>!r.deleted);
+      inbounds = live(ibSnap);
+      outbounds = live(obSnap);
+      rateHistory = live(rateSnap);
       renderAll();
     } catch(e){ console.error(e); }
   }
@@ -604,7 +810,7 @@
   }
 
   function actionBtns(col,id){
-    return `<div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="openEdit('${col}','${id}')">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${col}','${id}')">Del</button></div>`;
+    return `<div style="display:flex;gap:4px"><button class="btn btn-edit btn-sm" onclick="openEdit('${col}','${id}')">Edit</button><button class="btn btn-outline btn-sm" onclick="openRecordLog('${col}','${id}')">Log</button><button class="btn btn-danger btn-sm" onclick="deleteRecord('${col}','${id}')">Del</button></div>`;
   }
 
   function renderInboundHistory(){
@@ -612,8 +818,8 @@
     document.getElementById('ib-history').innerHTML=sorted.length?sorted.map(r=>{
       const rt=getRateForDate(r.date);
       const charge=r.qty*rt.inbound+(r.hazmat==='class8'?r.qty*rt.hazmat:0);
-      return `<tr><td>${fmtDate(r.date)}</td><td class="fw500">${r.customer}</td><td>${r.qty}</td><td><span class="badge ${r.hazmat==='class8'?'badge-warn':'badge-active'}">${r.hazmat==='class8'?'Class 8':'None'}</span></td><td style="color:var(--text3)">${r.notes||'—'}</td><td class="text-right mono fw500">${fmt(charge)}</td><td>${actionBtns('inbounds',r.id)}</td></tr>`;
-    }).join(''):'<tr><td colspan="7"><div class="empty">No inbound records yet</div></td></tr>';
+      return `<tr><td>${fmtDate(r.date)}</td><td class="fw500">${r.customer}</td><td>${r.qty}</td><td><span class="badge ${r.hazmat==='class8'?'badge-warn':'badge-active'}">${r.hazmat==='class8'?'Class 8':'None'}</span></td><td style="color:var(--text3)">${r.notes||'—'}</td><td class="text-right mono fw500">${fmt(charge)}</td><td>${metaCell(r)}</td><td>${actionBtns('inbounds',r.id)}</td></tr>`;
+    }).join(''):'<tr><td colspan="8"><div class="empty">No inbound records yet</div></td></tr>';
   }
 
   function renderOutboundHistory(){
@@ -623,8 +829,8 @@
       const handling=r.qty*rt.outbound;
       const dip=(r.diptubeQty||0)*rt.diptube;
       const total=handling+(r.transport||0)+dip;
-      return `<tr><td>${fmtDate(r.date)}</td><td class="fw500">${r.customer}</td><td>${r.qty}</td><td>${r.stockAfter??'—'}</td><td>${r.diptubeQty||0}</td><td class="mono">${fmt(r.transport||0)}</td><td class="mono">${fmt(handling)}</td><td style="color:var(--text3)">${r.notes||'—'}</td><td class="text-right mono fw500">${fmt(total)}</td><td>${actionBtns('outbounds',r.id)}</td></tr>`;
-    }).join(''):'<tr><td colspan="10"><div class="empty">No outbound records yet</div></td></tr>';
+      return `<tr><td>${fmtDate(r.date)}</td><td class="fw500">${r.customer}</td><td>${r.qty}</td><td>${r.stockAfter??'—'}</td><td>${r.diptubeQty||0}</td><td class="mono">${fmt(r.transport||0)}</td><td class="mono">${fmt(handling)}</td><td style="color:var(--text3)">${r.notes||'—'}</td><td class="text-right mono fw500">${fmt(total)}</td><td>${metaCell(r)}</td><td>${actionBtns('outbounds',r.id)}</td></tr>`;
+    }).join(''):'<tr><td colspan="11"><div class="empty">No outbound records yet</div></td></tr>';
   }
 
   function renderCustomerDropdowns(){
@@ -730,8 +936,9 @@
       <td class="mono">${fmt(r.hazmat)}</td><td class="mono">${fmt(r.storage)}</td>
       <td class="mono">${fmt(r.diptube)}</td>
       <td style="color:var(--text3)">${r.notes||'—'}</td>
-      <td><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('rates','${r.id}')">Del</button></td>
-    </tr>`).join(''):'<tr><td colspan="8"><div class="empty">No rate history — using default rates</div></td></tr>';
+      <td>${metaCell(r)}</td>
+      <td><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm" onclick="openRecordLog('rates','${r.id}')">Log</button><button class="btn btn-danger btn-sm" onclick="deleteRecord('rates','${r.id}')">Del</button></div></td>
+    </tr>`).join(''):'<tr><td colspan="9"><div class="empty">No rate history — using default rates</div></td></tr>';
   }
 
   window.saveRate=async function(){
@@ -746,7 +953,9 @@
       alert('Please fill in the effective date and all rate fields.');return;
     }
     try{
-      await addDoc(collection(db,'rates'),{date,inbound,outbound,hazmat,storage,diptube,notes,createdAt:Timestamp.now()});
+      if(!isAdmin){alert('Only administrators can change rates.');return;}
+      const data={date,inbound,outbound,hazmat,storage,diptube,notes};
+      await writeWithAudit('create','rates',null,{...data,...stampCreate()},null,data);
       ['rate-date','rate-inbound','rate-outbound','rate-hazmat','rate-storage','rate-diptube','rate-notes'].forEach(id=>document.getElementById(id).value='');
       showAlert('rate-success');
       await loadAll();
@@ -763,7 +972,8 @@
     const notes=document.getElementById('ib-notes').value.trim();
     if(!customer||!date||!qty||qty<1){alert('Please fill in customer, date, and quantity.');return;}
     try{
-      await addDoc(collection(db,'inbounds'),{customer,date,qty,hazmat,notes,createdAt:Timestamp.now()});
+      const data={customer,date,qty,hazmat,notes};
+      await writeWithAudit('create','inbounds',null,{...data,...stampCreate()},null,data);
       ['ib-customer','ib-qty','ib-notes'].forEach(id=>document.getElementById(id).value='');
       showAlert('ib-success');await loadAll();
     }catch(e){console.error(e);showAlert('ib-error');}
@@ -782,7 +992,8 @@
     if(qty>stock){alert(`Insufficient stock. ${customer} only has ${stock} IBC(s) available.`);return;}
     if(diptubeQty>qty){alert(`Diptube qty (${diptubeQty}) cannot exceed outbound qty (${qty}).`);return;}
     try{
-      await addDoc(collection(db,'outbounds'),{customer,date,qty,transport,diptubeQty,notes,stockAfter:stock-qty,createdAt:Timestamp.now()});
+      const data={customer,date,qty,transport,diptubeQty,notes,stockAfter:stock-qty};
+      await writeWithAudit('create','outbounds',null,{...data,...stampCreate()},null,data);
       ['ob-qty','ob-transport','ob-notes'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('ob-diptube').value='0';
       showAlert('ob-success');await loadAll();
@@ -820,7 +1031,10 @@
     const hazmat=document.getElementById('edit-ib-hazmat').value;
     const notes=document.getElementById('edit-ib-notes').value.trim();
     if(!customer||!date||!qty){alert('Please fill all required fields.');return;}
-    try{await updateDoc(doc(db,'inbounds',id),{customer,date,qty,hazmat,notes});closeModal('modal-ib');await loadAll();}
+    const before=inbounds.find(x=>x.id===id);
+    const data={customer,date,qty,hazmat,notes};
+    if(!diffFields('inbounds',before,{...before,...data}).length){closeModal('modal-ib');return;}
+    try{await writeWithAudit('update','inbounds',id,{...data,...stampUpdate()},before,{...before,...data});closeModal('modal-ib');await loadAll();}
     catch(e){console.error(e);alert('Error saving.');}
   };
 
@@ -838,15 +1052,175 @@
       const map=getCustomerMap();
       const avail=(map[r.customer]?.stock||0)+r.qty;
       if(qty>avail){alert(`Insufficient stock. Max: ${avail}`);return;}
-      await updateDoc(doc(db,'outbounds',id),{date,qty,transport,diptubeQty,notes,stockAfter:avail-qty});
+      const data={date,qty,transport,diptubeQty,notes,stockAfter:avail-qty};
+      if(!diffFields('outbounds',r,{...r,...data}).length){closeModal('modal-ob');return;}
+      await writeWithAudit('update','outbounds',id,{...data,...stampUpdate()},r,{...r,...data});
       closeModal('modal-ob');await loadAll();
     }catch(e){console.error(e);alert('Error saving.');}
   };
 
+  // Soft delete: record is hidden but kept, and can be restored by an admin from Change History
   window.deleteRecord=async function(col,id){
-    if(!confirm('Delete this record? This cannot be undone.'))return;
-    try{await deleteDoc(doc(db,col,id));await loadAll();if(col==='rates')renderSettings();}
-    catch(e){console.error(e);alert('Error deleting.');}
+    if(col==='rates'&&!isAdmin){alert('Only administrators can delete rates.');return;}
+    const list=col==='inbounds'?inbounds:col==='outbounds'?outbounds:rateHistory;
+    const before=list.find(x=>x.id===id); if(!before) return;
+    if(col==='inbounds'){
+      const map=getCustomerMap(); const c=before.customer;
+      if((map[c]?.stock||0)-before.qty<0 && !confirm(`Warning: deleting this inbound makes ${c}'s stock negative (outbounds already recorded against it).\n\nDelete anyway?`)) return;
+    }
+    if(!confirm(`Delete this record?\n${summarize(col,before)}\n\nIt will be kept in Change History and can be restored by an admin.`))return;
+    try{
+      await writeWithAudit('delete',col,id,{deleted:true,deletedBy:actor(),deletedAt:serverTimestamp(),...stampUpdate()},before,null);
+      await loadAll(); if(col==='rates')renderSettings();
+    }catch(e){console.error(e);alert('Error deleting: '+(e.message||e));}
+  };
+
+  window.restoreRecord=async function(col,id){
+    if(!isAdmin){alert('Only administrators can restore records.');return;}
+    try{
+      const snap=await getDoc(doc(db,col,id));
+      if(!snap.exists()){alert('Record no longer exists.');return;}
+      const r=snap.data();
+      if(!r.deleted){alert('This record is not deleted.');return;}
+      if(!confirm(`Restore this record?\n${summarize(col,r)}`))return;
+      await writeWithAudit('restore',col,id,{deleted:false,deletedBy:null,deletedAt:null,...stampUpdate()},null,r);
+      await loadAll(); await loadHistory(); if(col==='rates')renderSettings();
+    }catch(e){console.error(e);alert('Error restoring: '+(e.message||e));}
+  };
+
+  // ===== Change history =====
+  window.loadHistory=async function(){
+    try{
+      const snap=await getDocs(query(collection(db,'auditLogs'),orderBy('at','desc'),limit(2000)));
+      auditLogs=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const users=[...new Map(auditLogs.map(l=>[l.by?.uid,l.by?.name||l.by?.email])).entries()].filter(([u])=>u);
+      const sel=document.getElementById('hf-user'); const cur=sel.value;
+      sel.innerHTML='<option value="">All</option>'+users.map(([u,n])=>`<option value="${esc(u)}">${esc(n)}</option>`).join('');
+      sel.value=cur;
+      // records currently deleted (for restore buttons)
+      window._deletedIds=new Set();
+      const lastByDoc={};
+      [...auditLogs].reverse().forEach(l=>{ lastByDoc[l.collection+'/'+l.docId]=l.action; });
+      Object.entries(lastByDoc).forEach(([k,a])=>{ if(a==='delete') window._deletedIds.add(k); });
+      renderHistory();
+    }catch(e){ console.error(e); document.getElementById('hist-table').innerHTML=`<tr><td colspan="7"><div class="empty">Could not load history: ${esc(e.message||e)}</div></td></tr>`; }
+  };
+  function filteredLogs(){
+    const col=document.getElementById('hf-col').value, act=document.getElementById('hf-action').value, u=document.getElementById('hf-user').value;
+    const from=document.getElementById('hf-from').value, to=document.getElementById('hf-to').value, q=document.getElementById('hf-q').value.trim().toLowerCase();
+    return auditLogs.filter(l=>{
+      if(col&&l.collection!==col) return false;
+      if(act&&l.action!==act) return false;
+      if(u&&l.by?.uid!==u) return false;
+      const d=tsDate(l.at); const ds=d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'';
+      if(from&&ds<from) return false;
+      if(to&&ds>to) return false;
+      if(q&&!JSON.stringify([l.summary,l.before,l.after,l.by?.name]).toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }
+  window.renderHistory=function(){
+    const rows=filteredLogs();
+    document.getElementById('hist-count').textContent=`${rows.length} of ${auditLogs.length} entries`;
+    document.getElementById('hist-table').innerHTML=rows.length?rows.map(l=>{
+      const canRestore=isAdmin&&l.action==='delete'&&l.collection!=='users'&&window._deletedIds?.has(l.collection+'/'+l.docId);
+      return `<tr><td class="meta">${fmtTs(l.at)}</td><td><div class="fw500" style="font-size:12px">${esc(l.by?.name)}</div><div class="meta">${esc(l.by?.email)}</div></td>
+      <td><span class="badge badge-${l.action}">${ACTION_LABEL[l.action]||l.action}</span></td><td>${COL_LABEL[l.collection]||l.collection}</td>
+      <td style="font-size:12px">${esc(l.summary)}</td><td>${changesHtml(l)}</td>
+      <td>${canRestore?`<button class="btn btn-outline btn-sm" onclick="restoreRecord('${l.collection}','${l.docId}')">Restore</button>`:''}</td></tr>`;
+    }).join(''):'<tr><td colspan="7"><div class="empty">No history entries</div></td></tr>';
+  };
+  window.exportHistoryCsv=function(){
+    const rows=filteredLogs();
+    const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+    const txt=l=>l.action==='update'?(l.changes||[]).map(c=>`${FIELD_LABEL[c.field]||c.field}: ${fmtVal(l.collection,c.field,c.from)} -> ${fmtVal(l.collection,c.field,c.to)}`).join('; ')
+      :Object.entries(l.after||l.before||{}).map(([k,v])=>`${FIELD_LABEL[k]||k}: ${fmtVal(l.collection,k,v)}`).join('; ');
+    const csv=['When,User,Email,Action,Type,Record,Details',...rows.map(l=>[fmtTs(l.at),l.by?.name,l.by?.email,ACTION_LABEL[l.action],COL_LABEL[l.collection],l.summary,txt(l)].map(q).join(','))].join('\r\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
+    a.download=`KOH_change_history_${today()}.csv`; a.click(); URL.revokeObjectURL(a.href);
+  };
+  window.openRecordLog=async function(col,id){
+    const list=col==='inbounds'?inbounds:col==='outbounds'?outbounds:rateHistory;
+    const r=list.find(x=>x.id===id);
+    document.getElementById('log-title').textContent=`History — ${COL_LABEL[col]}: ${summarize(col,r)}`;
+    const tb=document.getElementById('log-table');
+    tb.innerHTML='<tr><td colspan="4"><div class="empty">Loading…</div></td></tr>';
+    document.getElementById('modal-log').classList.add('open');
+    try{
+      const snap=await getDocs(query(collection(db,'auditLogs'),where('docId','==',id)));
+      const logs=snap.docs.map(d=>d.data()).filter(l=>l.collection===col).sort((a,b)=>(tsDate(a.at)||0)-(tsDate(b.at)||0));
+      const pre = r && !r.createdBy ? `<tr><td class="meta">${fmtTs(r.createdAt)}</td><td class="meta"><i>unknown</i></td><td><span class="badge badge-create">Created</span></td><td class="meta">Entered before login/history tracking was enabled</td></tr>` : '';
+      tb.innerHTML = (pre + logs.map(l=>`<tr><td class="meta">${fmtTs(l.at)}</td><td style="font-size:12px"><b>${esc(l.by?.name)}</b></td><td><span class="badge badge-${l.action}">${ACTION_LABEL[l.action]}</span></td><td>${changesHtml(l)}</td></tr>`).join('')) || '<tr><td colspan="4"><div class="empty">No history</div></td></tr>';
+    }catch(e){ console.error(e); tb.innerHTML=`<tr><td colspan="4"><div class="empty">Could not load: ${esc(e.message||e)}</div></td></tr>`; }
+  };
+
+  // ===== User management (admin) =====
+  async function loadUsers(){
+    if(!isAdmin) return;
+    try{
+      const snap=await getDocs(collection(db,'users'));
+      usersList=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+      renderUsers();
+    }catch(e){ console.error(e); document.getElementById('users-table').innerHTML=`<tr><td colspan="6"><div class="empty">Could not load users: ${esc(e.message||e)}</div></td></tr>`; }
+  }
+  function renderUsers(){
+    document.getElementById('users-table').innerHTML=usersList.length?usersList.map(u=>{
+      const me=u.id===currentUser.uid;
+      const status=u.active?'<span class="badge badge-active">Active</span>':(u.deactivatedAt?'<span class="badge badge-warn">Deactivated</span>':'<span class="badge badge-out">Pending</span>');
+      return `<tr><td class="fw500">${esc(u.name)}${me?' <span class="meta">(you)</span>':''}</td><td>${esc(u.email)}</td>
+      <td><select style="width:100px;padding:4px 8px" ${me?'disabled':''} onchange="setUserField('${u.id}','role',this.value)"><option value="user" ${u.role!=='admin'?'selected':''}>User</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select></td>
+      <td>${status}</td><td class="meta">${fmtTs(u.lastLoginAt)}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-outline btn-sm" onclick="renameUser('${u.id}')">Rename</button>
+        ${me?'':(u.active?`<button class="btn btn-danger btn-sm" onclick="setUserField('${u.id}','active',false)">Deactivate</button>`:`<button class="btn btn-edit btn-sm" onclick="setUserField('${u.id}','active',true)">Activate</button>`)}
+        <button class="btn btn-outline btn-sm" onclick="sendReset('${esc(u.email)}')">Reset password</button>
+      </div></td></tr>`;
+    }).join(''):'<tr><td colspan="6"><div class="empty">No users</div></td></tr>';
+  }
+  async function updateUserWithAudit(uid,data){
+    const before=usersList.find(u=>u.id===uid);
+    const after={...before,...data};
+    const extra={};
+    if(data.active===false) extra.deactivatedAt=serverTimestamp();
+    if(data.active===true) extra.deactivatedAt=null;
+    await writeWithAudit('update','users',uid,{...data,...extra,updatedBy:actor(),updatedAt:serverTimestamp()},before,after);
+    await loadUsers();
+  }
+  window.setUserField=async function(uid,field,value){
+    const u=usersList.find(x=>x.id===uid);
+    if(field==='active'&&!value&&!confirm(`Deactivate ${u.name}? They will no longer be able to use the app.`)){renderUsers();return;}
+    try{ await updateUserWithAudit(uid,{[field]:value}); showAlert('user-success',3000,'User updated.'); }
+    catch(e){ console.error(e); showAlert('user-error',5000,'Error: '+(e.message||e)); renderUsers(); }
+  };
+  window.renameUser=async function(uid){
+    const u=usersList.find(x=>x.id===uid);
+    const name=prompt('New display name',u.name||''); if(!name||name.trim()===u.name) return;
+    try{ await updateUserWithAudit(uid,{name:name.trim()}); if(uid===currentUser.uid){profile.name=name.trim();document.getElementById('me-name').textContent=profile.name;} }
+    catch(e){ console.error(e); showAlert('user-error',5000,'Error: '+(e.message||e)); }
+  };
+  window.sendReset=async function(email){
+    try{ await sendPasswordResetEmail(auth,email); showAlert('user-success',4000,`Password reset email sent to ${email}.`); }
+    catch(e){ showAlert('user-error',5000,authMsg(e)); }
+  };
+  window.createUserAccount=async function(){
+    const name=document.getElementById('nu-name').value.trim();
+    const email=document.getElementById('nu-email').value.trim();
+    const pass=document.getElementById('nu-pass').value;
+    const role=document.getElementById('nu-role').value;
+    if(!name||!email||!pass){ showAlert('user-error',4000,'Enter name, email and a temporary password.'); return; }
+    try{
+      const cred=await createUserWithEmailAndPassword(adminAuth,email,pass);
+      await signOut(adminAuth);
+      const data={name,email,role,active:true,createdAt:serverTimestamp()};
+      const batch=writeBatch(db);
+      batch.set(doc(db,'users',cred.user.uid),{...data,createdBy:actor()});
+      batch.set(doc(collection(db,'auditLogs')),auditEntry('create','users',cred.user.uid,null,data));
+      await batch.commit();
+      ['nu-name','nu-email','nu-pass'].forEach(id=>document.getElementById(id).value='');
+      showAlert('user-success',6000,`Account created for ${name}. Share the email and temporary password with them.`);
+      await loadUsers();
+    }catch(e){ console.error(e); showAlert('user-error',6000,authMsg(e)); }
   };
 
   window.showPage=function(id,el){
@@ -855,7 +1229,8 @@
     document.getElementById('page-'+id).classList.add('active');
     if(el) el.classList.add('active');
     if(id==='invoice')renderInvoice();
-    if(id==='settings')renderSettings();
+    if(id==='settings'){ if(!isAdmin){ return window.showPage('dashboard',document.querySelector('.nav-item')); } renderSettings(); loadUsers(); }
+    if(id==='history')loadHistory();
   };
 
   function renderAll(){renderDashboard();renderInventory();renderInboundHistory();renderOutboundHistory();renderCustomerDropdowns();renderInvoiceMonths();renderInvoice();}
@@ -864,7 +1239,7 @@
   document.getElementById('ob-date').value=today();
   document.getElementById('rate-date').value=today();
   document.getElementById('ob-customer').addEventListener('change',updateObStockInfo);
-  loadAll();
+  // Data loads after sign-in (see onAuthStateChanged)
 </script>
 </body>
 </html>
